@@ -1772,7 +1772,7 @@ function buildWhatToDoNext(
       title: "Generate & submit eBRC file",
       detail:
         "All payment and clearance checks look complete. Include this Shipping Bill in your bank eBRC batch.",
-      href: "/app/documents",
+      href: "/app/ebrc",
       ctaLabel: "Prepare eBRC",
     });
   }

@@ -10,7 +10,9 @@ import {
   Check,
   ChevronsUpDown,
   Compass,
+  CreditCard,
   FileCheck2,
+  FileSpreadsheet,
   FileText,
   HelpCircle,
   LayoutDashboard,
@@ -18,6 +20,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { TrialCountdownBanner } from "@/components/billing/trial-countdown-banner";
 import { AppShell, type AppNavItem, type OrgSwitcherOption } from "@/components/shell/app-shell";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { TrustGuaranteesList } from "@/components/trust/trust-panel";
@@ -102,6 +105,12 @@ export function WorkspaceShell({
         icon: <BadgeIndianRupee className="h-5 w-5" />,
       },
       {
+        id: "ebrc",
+        label: "Bulk eBRC",
+        href: "/app/ebrc",
+        icon: <FileSpreadsheet className="h-5 w-5" />,
+      },
+      {
         id: "iecs",
         label: activeOrg.type === "consultant" ? "Client IECs" : "IEC Profile",
         href: "/app/iecs",
@@ -113,6 +122,12 @@ export function WorkspaceShell({
         label: "Team",
         href: "/app/team",
         icon: <Users className="h-5 w-5" />,
+      },
+      {
+        id: "billing",
+        label: "Plans & Usage",
+        href: "/app/billing",
+        icon: <CreditCard className="h-5 w-5" />,
       },
       {
         id: "onboarding",
@@ -132,11 +147,15 @@ export function WorkspaceShell({
         ? "matches"
         : pathname.startsWith("/app/incentives")
           ? "incentives"
-          : pathname.startsWith("/app/iecs")
-            ? "iecs"
-            : pathname.startsWith("/app/team")
-              ? "team"
-              : "overview";
+          : pathname.startsWith("/app/ebrc")
+            ? "ebrc"
+            : pathname.startsWith("/app/iecs")
+              ? "iecs"
+              : pathname.startsWith("/app/team")
+                ? "team"
+                : pathname.startsWith("/app/billing")
+                  ? "billing"
+                  : "overview";
 
   const orgOptions: readonly OrgSwitcherOption[] = organizations.map((org) => ({
     id: org.orgId,
@@ -327,6 +346,7 @@ export function WorkspaceShell({
         </>
       }
     >
+      <TrialCountdownBanner planKey={activeOrg.planKey} trialEndsAt={activeOrg.trialEndsAt} />
       {children}
     </AppShell>
   );

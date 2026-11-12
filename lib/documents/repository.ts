@@ -4,8 +4,8 @@ import { requireOrgAccess } from "@/lib/auth/org-access";
 import { isPgliteTestAdapterEnabled } from "@/lib/supabase/config";
 import {
   assertCanUploadBatch,
+  getCurrentKolkataPeriodStart,
   getOrgUsageSummary,
-  incrementShippingBillUsage,
   type OrgUsageSummary,
 } from "@/lib/billing/entitlements";
 import { startTrial } from "@/lib/billing/trial";
@@ -526,6 +526,18 @@ export async function commitUploadedDocument(params: {
         ]
       );
 
+      if (params.kind === "shipping_bill" && !iecRow.is_demo) {
+        const periodStart = getCurrentKolkataPeriodStart();
+        await tx.query(
+          `insert into public.usage_counters (org_id, period_start, shipping_bills_used)
+           values ($1, $2, 1)
+           on conflict (org_id, period_start) do update
+             set shipping_bills_used = public.usage_counters.shipping_bills_used + 1,
+                 updated_at = now()`,
+          [access.orgId, periodStart]
+        );
+      }
+
       return {
         isDemo: iecRow.is_demo,
         document: {
@@ -543,10 +555,6 @@ export async function commitUploadedDocument(params: {
         },
       };
     });
-
-    if (params.kind === "shipping_bill" && !txOut.isDemo) {
-      await incrementShippingBillUsage({ orgId: access.orgId, delta: 1 });
-    }
 
     const trial = txOut.isDemo ? null : await startTrial(access.orgId, access.user.id);
     return {
@@ -578,46 +586,27 @@ export async function commitUploadedDocument(params: {
     });
   }
 
-  const { data: inserted, error } = await supabase
-    .from("documents")
-    .insert({
-      id: params.docId,
-      iec_id: params.iecId,
-      kind: params.kind,
-      storage_path: safePath,
-      sha256: params.sha256,
-      original_name: params.originalName,
-      parse_status: "queued",
-      file_size_bytes: verified.actualSizeBytes,
-      mime_type: verified.canonicalMimeType,
-      uploaded_by: access.user.id,
-    })
-    .select(
-      "id, iec_id, kind, original_name, parse_status, file_size_bytes, mime_type, parse_error, sha256, created_at"
-    )
-    .single();
+  const periodStart = getCurrentKolkataPeriodStart();
+  const { data: committedRows, error } = await supabase.rpc("commit_document_with_usage", {
+    p_doc_id: params.docId,
+    p_org_id: access.orgId,
+    p_iec_id: params.iecId,
+    p_kind: params.kind,
+    p_storage_path: safePath,
+    p_sha256: params.sha256,
+    p_original_name: params.originalName,
+    p_file_size_bytes: verified.actualSizeBytes,
+    p_mime_type: verified.canonicalMimeType,
+    p_actor_id: access.user.id,
+    p_period_start: periodStart,
+    p_increment_usage: params.kind === "shipping_bill" && !iecRow.is_demo,
+  });
 
+  const inserted = Array.isArray(committedRows) ? committedRows[0] : committedRows;
   if (error || !inserted) {
     await deleteStorageObjects([safePath]);
     throw new ValidationError("Could not persist uploaded document.");
   }
-
-  if (params.kind === "shipping_bill" && !iecRow.is_demo) {
-    await incrementShippingBillUsage({ orgId: access.orgId, delta: 1 });
-  }
-
-  await supabase.from("audit_log").insert({
-    org_id: access.orgId,
-    actor_id: access.user.id,
-    action: "create",
-    entity: "documents",
-    entity_id: inserted.id,
-    diff: {
-      kind: inserted.kind,
-      sha256: inserted.sha256,
-      bytes: inserted.file_size_bytes,
-    },
-  });
 
   const trial = iecRow.is_demo ? null : await startTrial(access.orgId, access.user.id);
 

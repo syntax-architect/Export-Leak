@@ -2,18 +2,27 @@ import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { toErrorResponse, ValidationError } from "@/lib/auth/errors";
 import { ACTIVE_IEC_COOKIE, requireOrgAccess } from "@/lib/auth/org-access";
+import { listIecProfilesWithAlerts } from "@/lib/auth/repository";
+import { assertCan } from "@/lib/billing/entitlements";
 import { buildLeakageReportPdf, buildLeakageReportWorkbook } from "@/lib/dashboard/export-report";
 import { getLeakageDashboardData, recordReportExportAudit } from "@/lib/dashboard/repository";
 
 export async function GET(request: NextRequest, context: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await context.params;
-    await requireOrgAccess(orgId, "viewer");
+    const access = await requireOrgAccess(orgId, "viewer");
 
     const format = request.nextUrl.searchParams.get("format") ?? "pdf";
     if (format !== "pdf" && format !== "xlsx") {
       throw new ValidationError("format must be 'pdf' or 'xlsx'.");
     }
+
+    const iecs = await listIecProfilesWithAlerts(orgId);
+    const allowDemoExport = iecs.length > 0 && iecs.every((iec) => iec.isDemo);
+    await assertCan(orgId, "export_report", 1, {
+      userId: access.user.id,
+      allowDemoExport,
+    });
 
     const cookieStore = await cookies();
     const activeIecId = cookieStore.get(ACTIVE_IEC_COOKIE)?.value ?? null;

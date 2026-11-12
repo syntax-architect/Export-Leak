@@ -89,6 +89,10 @@ import {
 } from "@/app/api/orgs/[orgId]/dashboard/saved-views/route";
 import { PATCH as patchAlertRoute } from "@/app/api/orgs/[orgId]/alerts/[alertId]/route";
 import { GET as downloadLeakageReportRoute } from "@/app/api/orgs/[orgId]/reports/leakage/route";
+import { GET as getEbrcRoute, POST as postEbrcRoute } from "@/app/api/orgs/[orgId]/ebrc/route";
+import { GET as getUsageRoute } from "@/app/api/orgs/[orgId]/usage/route";
+import { POST as startTrialRoute } from "@/app/api/orgs/[orgId]/trial/start/route";
+import { POST as adminExtendTrialRoute } from "@/app/api/admin/trials/extend/route";
 import { GET as authCallbackRoute } from "@/app/auth/callback/route";
 
 describe("Auth, org access, API 403 isolation, and edge cases", () => {
@@ -471,6 +475,45 @@ describe("Auth, org access, API 403 isolation, and edge cases", () => {
       })
     );
     expect(nonAdminCompliancePut.status).toBe(403);
+
+    const ebrcGet = await getEbrcRoute(
+      new NextRequest(`http://localhost/api/orgs/${orgA.orgId}/ebrc`),
+      { params: Promise.resolve({ orgId: orgA.orgId }) }
+    );
+    expect(ebrcGet.status).toBe(403);
+
+    const ebrcPost = await postEbrcRoute(
+      new NextRequest(`http://localhost/api/orgs/${orgA.orgId}/ebrc`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "validate", rows: [] }),
+      }),
+      { params: Promise.resolve({ orgId: orgA.orgId }) }
+    );
+    expect(ebrcPost.status).toBe(403);
+
+    const usageGet = await getUsageRoute(
+      new NextRequest(`http://localhost/api/orgs/${orgA.orgId}/usage`),
+      { params: Promise.resolve({ orgId: orgA.orgId }) }
+    );
+    expect(usageGet.status).toBe(403);
+
+    const trialStartPost = await startTrialRoute(
+      new NextRequest(`http://localhost/api/orgs/${orgA.orgId}/trial/start`, {
+        method: "POST",
+      }),
+      { params: Promise.resolve({ orgId: orgA.orgId }) }
+    );
+    expect(trialStartPost.status).toBe(403);
+
+    const nonAdminTrialExtend = await adminExtendTrialRoute(
+      new NextRequest("http://localhost/api/admin/trials/extend", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ orgId: orgA.orgId, days: 7 }),
+      })
+    );
+    expect(nonAdminTrialExtend.status).toBe(403);
 
     // Ensure User B still has access to Org B
     const orgBIecs = await listIecsRoute(

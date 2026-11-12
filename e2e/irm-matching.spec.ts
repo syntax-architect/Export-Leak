@@ -33,7 +33,9 @@ test.describe("Prompt 7: IRM import preview, matching review, manual allocation 
       "shipping-bills",
       "sb-01-icegate-garment.pdf"
     );
-    await page.getByTestId("document-file-input").setInputFiles([sb1Path]);
+    const fileInput = page.getByTestId("document-file-input");
+    await expect(fileInput).toBeEnabled({ timeout: 20_000 });
+    await fileInput.setInputFiles([sb1Path]);
     await expect(page.getByTestId("batch-parse-summary")).toContainText("1 parsed", {
       timeout: 30_000,
     });

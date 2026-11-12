@@ -25,6 +25,7 @@ test.describe("Prompt 6: Shipping Bill parser, batch summary & mobile/desktop re
 
     // Navigate to Documents and upload 1 clean PDF + 1 uncertain edge-case PDF
     await page.goto("/app/documents");
+    await expect(page.getByTestId("document-file-input")).toBeEnabled({ timeout: 20_000 });
     const sb1Path = path.resolve(
       process.cwd(),
       "fixtures",

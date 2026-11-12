@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/auth/errors";
 import { hasMinRole, requireOrgAccess, type AuthenticatedUser } from "@/lib/auth/org-access";
+import { assertCan, getCurrentKolkataPeriodStart } from "@/lib/billing/entitlements";
 import { startTrial } from "@/lib/billing/trial";
 import type {
   DocumentKind,
@@ -18,6 +19,7 @@ export interface UserOrganizationSummary {
   role: MembershipRole;
   planKey: string;
   planStatus: string;
+  trialEndsAt?: string | null;
 }
 
 export interface IecWithAlertCount {
@@ -73,8 +75,9 @@ export async function listUserOrganizations(userId: string): Promise<UserOrganiz
         role: MembershipRole;
         plan_key: string;
         plan_status: string;
+        trial_ends_at: string | null;
       }>(
-        `select o.id as org_id, o.name, o.type, m.role, o.plan_key, o.plan_status
+        `select o.id as org_id, o.name, o.type, m.role, o.plan_key, o.plan_status, o.trial_ends_at::text
          from public.memberships m
          join public.organizations o on o.id = m.org_id
          where m.user_id = $1
@@ -88,6 +91,7 @@ export async function listUserOrganizations(userId: string): Promise<UserOrganiz
         role: r.role,
         planKey: r.plan_key,
         planStatus: r.plan_status,
+        trialEndsAt: r.trial_ends_at,
       }));
     });
   }
@@ -95,7 +99,7 @@ export async function listUserOrganizations(userId: string): Promise<UserOrganiz
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("memberships")
-    .select("role, organizations!inner(id, name, type, plan_key, plan_status)")
+    .select("role, organizations!inner(id, name, type, plan_key, plan_status, trial_ends_at)")
     .eq("user_id", userId);
 
   if (error || !data) return [];
@@ -109,6 +113,7 @@ export async function listUserOrganizations(userId: string): Promise<UserOrganiz
       role: row.role,
       planKey: org?.plan_key ?? "free",
       planStatus: org?.plan_status ?? "active",
+      trialEndsAt: org?.trial_ends_at ?? null,
     };
   });
 }
@@ -294,6 +299,7 @@ export async function createIecProfile(params: {
   adBankName: string | null;
 }): Promise<IecWithAlertCount> {
   const access = await requireOrgAccess(params.orgId, "member");
+  await assertCan(access.orgId, "add_iec", 1, { userId: access.user.id });
 
   if (isPgliteTestAdapterEnabled()) {
     const { asPgliteUser } = await import("@/lib/auth/pglite-adapter");
@@ -504,6 +510,7 @@ export async function createTeamInvite(params: {
   role: InviteRole;
 }): Promise<{ invite: OrgInviteItem; rawToken: string }> {
   const access = await requireOrgAccess(params.orgId, "admin");
+  await assertCan(access.orgId, "invite_seat", 1, { userId: access.user.id });
   const normalizedEmail = params.email.trim().toLowerCase();
   const rawToken = crypto.randomBytes(24).toString("base64url");
   const tokenHash = hashToken(rawToken);
@@ -997,16 +1004,26 @@ export async function createDocumentRecord(params: {
 
   if (isPgliteTestAdapterEnabled()) {
     const { asPgliteUser } = await import("@/lib/auth/pglite-adapter");
-    const result = await asPgliteUser(access.user.id, async (tx) => {
+    const iecRow = await asPgliteUser(access.user.id, async (tx) => {
       const iecCheck = await tx.query<{ id: string; is_demo: boolean }>(
         `select id, is_demo from public.iec_profiles where id = $1 and org_id = $2`,
         [params.iecId, access.orgId]
       );
-      const iecRow = iecCheck.rows[0];
-      if (!iecRow) {
-        throw new ForbiddenError("IEC profile does not belong to this organization.");
-      }
+      return iecCheck.rows[0] ?? null;
+    });
 
+    if (!iecRow) {
+      throw new ForbiddenError("IEC profile does not belong to this organization.");
+    }
+
+    if (params.kind === "shipping_bill" && !iecRow.is_demo) {
+      await assertCan(access.orgId, "upload", 1, {
+        userId: access.user.id,
+        allowAutoTrial: true,
+      });
+    }
+
+    const result = await asPgliteUser(access.user.id, async (tx) => {
       const res = await tx.query<{
         id: string;
         iec_id: string;
@@ -1022,6 +1039,18 @@ export async function createDocumentRecord(params: {
       );
       const row = res.rows[0];
       if (!row) throw new Error("Failed to create document record.");
+
+      if (params.kind === "shipping_bill" && !iecRow.is_demo) {
+        const periodStart = getCurrentKolkataPeriodStart();
+        await tx.query(
+          `insert into public.usage_counters (org_id, period_start, shipping_bills_used)
+           values ($1, $2, 1)
+           on conflict (org_id, period_start) do update
+             set shipping_bills_used = public.usage_counters.shipping_bills_used + 1,
+                 updated_at = now()`,
+          [access.orgId, periodStart]
+        );
+      }
 
       await tx.query(
         `insert into public.audit_log (org_id, actor_id, action, entity, entity_id, diff)
@@ -1061,32 +1090,33 @@ export async function createDocumentRecord(params: {
     throw new ForbiddenError("IEC profile does not belong to this organization.");
   }
 
-  const { data, error } = await supabase
-    .from("documents")
-    .insert({
-      id: docId,
-      iec_id: params.iecId,
-      kind: params.kind,
-      storage_path: storagePath,
-      sha256,
-      original_name: params.originalName,
-      uploaded_by: access.user.id,
-    })
-    .select("id, iec_id, kind, original_name, parse_status, created_at")
-    .single();
+  if (params.kind === "shipping_bill" && !iecCheck.is_demo) {
+    await assertCan(access.orgId, "upload", 1, {
+      userId: access.user.id,
+      allowAutoTrial: true,
+    });
+  }
 
+  const periodStart = getCurrentKolkataPeriodStart();
+  const { data: committedRows, error } = await supabase.rpc("commit_document_with_usage", {
+    p_doc_id: docId,
+    p_org_id: access.orgId,
+    p_iec_id: params.iecId,
+    p_kind: params.kind,
+    p_storage_path: storagePath,
+    p_sha256: sha256,
+    p_original_name: params.originalName,
+    p_file_size_bytes: 0,
+    p_mime_type: "application/pdf",
+    p_actor_id: access.user.id,
+    p_period_start: periodStart,
+    p_increment_usage: params.kind === "shipping_bill" && !iecCheck.is_demo,
+  });
+
+  const data = Array.isArray(committedRows) ? committedRows[0] : committedRows;
   if (error || !data) {
     throw new ValidationError("Could not create document record.");
   }
-
-  await supabase.from("audit_log").insert({
-    org_id: access.orgId,
-    actor_id: access.user.id,
-    action: "create",
-    entity: "documents",
-    entity_id: data.id,
-    diff: { kind: data.kind },
-  });
 
   const trial = iecCheck.is_demo ? null : await startTrial(access.orgId, access.user.id);
 

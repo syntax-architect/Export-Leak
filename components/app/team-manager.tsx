@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Copy, Trash2, UserPlus } from "lucide-react";
+import { UpgradePlanDialog } from "@/components/billing/upgrade-plan-dialog";
+import { UsageMeterCard } from "@/components/billing/usage-meter-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
+import type { PlanLimitDetails } from "@/lib/auth/errors";
 import type { OrgInviteItem, OrgMemberItem } from "@/lib/auth/repository";
+import type { OrgUsageSnapshot } from "@/lib/billing/entitlements";
 import type { InviteRole, MembershipRole } from "@/lib/database.types";
 
 export interface TeamManagerProps {
@@ -25,6 +29,7 @@ export interface TeamManagerProps {
   currentRole: MembershipRole;
   members: readonly OrgMemberItem[];
   invites: readonly OrgInviteItem[];
+  usageSnapshot?: OrgUsageSnapshot;
 }
 
 export function TeamManager({
@@ -33,6 +38,7 @@ export function TeamManager({
   currentRole,
   members,
   invites,
+  usageSnapshot,
 }: TeamManagerProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -41,6 +47,7 @@ export function TeamManager({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [latestInviteUrl, setLatestInviteUrl] = React.useState<string | null>(null);
+  const [upgradePrompt, setUpgradePrompt] = React.useState<PlanLimitDetails | null>(null);
 
   const canInvite = currentRole === "owner" || currentRole === "admin";
   const isOwner = currentRole === "owner";
@@ -59,8 +66,14 @@ export function TeamManager({
       });
       const body = (await res.json()) as {
         inviteUrl?: string;
-        error?: { message?: string };
+        error?: { code?: string; message?: string; details?: PlanLimitDetails };
       };
+
+      if (res.status === 402 && body.error?.details) {
+        setUpgradePrompt(body.error.details);
+        setLoading(false);
+        return;
+      }
 
       if (!res.ok) {
         setError(body.error?.message ?? "Could not send invite.");
@@ -99,11 +112,24 @@ export function TeamManager({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text">Team &amp; Permissions</h1>
-        <p className="mt-1 text-sm text-text-muted">
-          Invite admins, members, or read-only viewers. Viewers cannot upload or delete data.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-text">Team &amp; Permissions</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            Invite admins, members, or read-only viewers. Viewers cannot upload or delete data.
+          </p>
+        </div>
+
+        {usageSnapshot ? (
+          <UsageMeterCard
+            planDisplayName={usageSnapshot.planDisplayName}
+            used={usageSnapshot.seatsUsed}
+            limit={usageSnapshot.teamSeatsLimit}
+            unitLabel="team seats used"
+            secondaryText={`${usageSnapshot.shippingBillsUsed} of ${usageSnapshot.shippingBillsLimit} shipping bills used this month`}
+            testId="team-usage-meter-card"
+          />
+        ) : null}
       </div>
 
       {error ? (
@@ -245,6 +271,8 @@ export function TeamManager({
           </CardContent>
         </Card>
       ) : null}
+
+      <UpgradePlanDialog details={upgradePrompt} onClose={() => setUpgradePrompt(null)} />
     </div>
   );
 }

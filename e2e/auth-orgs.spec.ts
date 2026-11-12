@@ -44,7 +44,9 @@ test.describe("Auth, organizations, onboarding, and viewer isolation", () => {
     ).toBeVisible();
 
     await ownerPage.goto("/app/documents");
-    await ownerPage.getByTestId("document-file-input").setInputFiles({
+    const fileInput = ownerPage.getByTestId("document-file-input");
+    await expect(fileInput).toBeEnabled({ timeout: 20_000 });
+    await fileInput.setInputFiles({
       name: "sb-test-001.pdf",
       mimeType: "application/pdf",
       buffer: Buffer.from("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n"),

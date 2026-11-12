@@ -17,12 +17,12 @@ import {
   FileSpreadsheet,
   HelpCircle,
   Search,
-  Sparkles,
   Trash2,
   Users,
   X,
 } from "lucide-react";
 import { DASHBOARD_DEFAULT_PAGE_SIZE } from "@/config/deadlines";
+import { UpgradePlanDialog } from "@/components/billing/upgrade-plan-dialog";
 import { TrustFooterBar } from "@/components/trust/trust-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { MoneyText } from "@/components/ui/money-text";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/toast";
+import type { PlanLimitDetails } from "@/lib/auth/errors";
 import type {
   DashboardLeakageShipmentRow,
   DashboardSavedViewRow,
@@ -59,7 +60,7 @@ const CHECKLIST_ITEMS = [
   { key: "uploadShippingBills" as const, label: "Upload shipping bills", href: "/app/documents" },
   { key: "uploadIrm" as const, label: "Upload IRM export", href: "/app/documents" },
   { key: "reviewMatches" as const, label: "Review matches", href: "/app/matches" },
-  { key: "downloadEbrc" as const, label: "Download first eBRC file", href: "/app/documents" },
+  { key: "downloadEbrc" as const, label: "Download first eBRC file", href: "/app/ebrc" },
 ];
 
 const SB_STATUS_BADGES: Record<
@@ -154,6 +155,49 @@ export function LeakageDashboardWorkspace({
   const canWrite = role !== "viewer";
   const data = initialData;
   const [deletingDemo, setDeletingDemo] = React.useState(false);
+  const [downloadingFormat, setDownloadingFormat] = React.useState<"pdf" | "xlsx" | null>(null);
+  const [upgradePrompt, setUpgradePrompt] = React.useState<PlanLimitDetails | null>(null);
+
+  async function handleDownloadReport(format: "pdf" | "xlsx") {
+    setDownloadingFormat(format);
+    try {
+      const res = await fetch(`/api/orgs/${data.summary.orgId}/reports/leakage?format=${format}`);
+      if (res.status === 402) {
+        const body = (await res.json()) as { error?: { details?: PlanLimitDetails } };
+        if (body.error?.details) {
+          setUpgradePrompt(body.error.details);
+          return;
+        }
+      }
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as {
+          error?: { message?: string };
+        } | null;
+        toast({
+          title: body?.error?.message ?? "Could not generate leakage report.",
+          variant: "danger",
+        });
+        return;
+      }
+
+      const blob = await res.blob();
+      const disposition = res.headers.get("content-disposition") ?? "";
+      const filenameMatch = /filename="([^"]+)"/.exec(disposition);
+      const filename = filenameMatch?.[1] ?? `exportleak-leakage-report.${format}`;
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: "Network error while downloading report.", variant: "danger" });
+    } finally {
+      setDownloadingFormat(null);
+    }
+  }
 
   // Filters, search, sort & pagination
   const [preset, setPreset] = React.useState<DashboardPreset>("all");
@@ -458,30 +502,6 @@ export function LeakageDashboardWorkspace({
 
   return (
     <div className="flex flex-col gap-5" data-testid="dashboard-summary-root">
-      {data.summary.planKey === "trial_pro" ? (
-        <div
-          data-testid="trial-pro-banner"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] border border-accent/30 bg-accent-soft p-3.5 text-sm text-accent-soft-fg"
-        >
-          <div className="flex items-center gap-2.5">
-            <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>
-              <strong>7-day Pro trial active</strong>
-              {data.summary.trialEndsAt ? (
-                <>
-                  {" "}
-                  — full access until <DateText date={data.summary.trialEndsAt} /> (no card
-                  required).
-                </>
-              ) : (
-                " — full access unlocked after your first upload."
-              )}
-            </span>
-          </div>
-          <Badge variant="accent">Pro Trial</Badge>
-        </div>
-      ) : null}
-
       {data.summary.hasDemoData ? (
         <div
           data-testid="demo-workspace-banner"
@@ -539,23 +559,29 @@ export function LeakageDashboardWorkspace({
               <span>Take quick tour</span>
             </Button>
           ) : null}
-          <Button asChild variant="secondary" size="sm" className="min-h-11">
-            <a
-              href={`/api/orgs/${data.summary.orgId}/reports/leakage?format=pdf`}
-              data-testid="download-report-pdf"
-            >
-              <Download className="h-4 w-4" aria-hidden="true" />
-              <span>Download leakage report (PDF)</span>
-            </a>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="min-h-11"
+            loading={downloadingFormat === "pdf"}
+            onClick={() => void handleDownloadReport("pdf")}
+            data-testid="download-report-pdf"
+          >
+            <Download className="h-4 w-4" aria-hidden="true" />
+            <span>Download leakage report (PDF)</span>
           </Button>
-          <Button asChild variant="secondary" size="sm" className="min-h-11">
-            <a
-              href={`/api/orgs/${data.summary.orgId}/reports/leakage?format=xlsx`}
-              data-testid="download-report-xlsx"
-            >
-              <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-              <span>Excel report</span>
-            </a>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="min-h-11"
+            loading={downloadingFormat === "xlsx"}
+            onClick={() => void handleDownloadReport("xlsx")}
+            data-testid="download-report-xlsx"
+          >
+            <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
+            <span>Excel report</span>
           </Button>
           <Button
             asChild
@@ -1446,6 +1472,8 @@ export function LeakageDashboardWorkspace({
       </Card>
 
       <TrustFooterBar />
+
+      <UpgradePlanDialog details={upgradePrompt} onClose={() => setUpgradePrompt(null)} />
     </div>
   );
 }

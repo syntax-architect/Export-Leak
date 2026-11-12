@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Plus } from "lucide-react";
+import { UpgradePlanDialog } from "@/components/billing/upgrade-plan-dialog";
+import { UsageMeterCard } from "@/components/billing/usage-meter-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +12,9 @@ import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import type { PlanLimitDetails } from "@/lib/auth/errors";
 import type { IecWithAlertCount } from "@/lib/auth/repository";
+import type { OrgUsageSnapshot } from "@/lib/billing/entitlements";
 import type { MembershipRole, OrganizationType } from "@/lib/database.types";
 
 export interface IecManagerProps {
@@ -18,9 +22,10 @@ export interface IecManagerProps {
   orgType: OrganizationType;
   role: MembershipRole;
   initialIecs: readonly IecWithAlertCount[];
+  usageSnapshot?: OrgUsageSnapshot;
 }
 
-export function IecManager({ orgId, orgType, role, initialIecs }: IecManagerProps) {
+export function IecManager({ orgId, orgType, role, initialIecs, usageSnapshot }: IecManagerProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [iecCode, setIecCode] = React.useState("");
@@ -28,6 +33,7 @@ export function IecManager({ orgId, orgType, role, initialIecs }: IecManagerProp
   const [gstin, setGstin] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [upgradePrompt, setUpgradePrompt] = React.useState<PlanLimitDetails | null>(null);
 
   const canWrite = role !== "viewer";
 
@@ -42,7 +48,14 @@ export function IecManager({ orgId, orgType, role, initialIecs }: IecManagerProp
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ iecCode, legalName, gstin }),
       });
-      const body = (await res.json()) as { error?: { message?: string } };
+      const body = (await res.json()) as {
+        error?: { code?: string; message?: string; details?: PlanLimitDetails };
+      };
+      if (res.status === 402 && body.error?.details) {
+        setUpgradePrompt(body.error.details);
+        setLoading(false);
+        return;
+      }
       if (!res.ok) {
         setError(body.error?.message ?? "Could not add IEC profile.");
         setLoading(false);
@@ -91,13 +104,26 @@ export function IecManager({ orgId, orgType, role, initialIecs }: IecManagerProp
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text">
-          {orgType === "consultant" ? "Client IEC Profiles" : "IEC Profile"}
-        </h1>
-        <p className="mt-1 text-sm text-text-muted">
-          IEC codes must be exactly 10 alphanumeric characters.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-text">
+            {orgType === "consultant" ? "Client IEC Profiles" : "IEC Profile"}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">
+            IEC codes must be exactly 10 alphanumeric characters.
+          </p>
+        </div>
+
+        {usageSnapshot ? (
+          <UsageMeterCard
+            planDisplayName={usageSnapshot.planDisplayName}
+            used={usageSnapshot.iecsUsed}
+            limit={usageSnapshot.maxIecs}
+            unitLabel="IECs active"
+            secondaryText={`${usageSnapshot.shippingBillsUsed} of ${usageSnapshot.shippingBillsLimit} shipping bills used this month`}
+            testId="iec-usage-meter-card"
+          />
+        ) : null}
       </div>
 
       {canWrite ? (
@@ -169,6 +195,8 @@ export function IecManager({ orgId, orgType, role, initialIecs }: IecManagerProp
           />
         }
       />
+
+      <UpgradePlanDialog details={upgradePrompt} onClose={() => setUpgradePrompt(null)} />
     </div>
   );
 }

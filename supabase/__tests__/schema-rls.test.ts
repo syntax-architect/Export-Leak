@@ -59,6 +59,12 @@ const USAGE_B = "bbbb1313-0000-4000-8000-000000000001";
 const AUDIT_A = "aaaa1414-0000-4000-8000-000000000001";
 const AUDIT_B = "bbbb1414-0000-4000-8000-000000000001";
 
+const TRIAL_NOTIF_A = "aaaa1515-0000-4000-8000-000000000001";
+const TRIAL_NOTIF_B = "bbbb1515-0000-4000-8000-000000000001";
+
+const BILL_EVT_A = "aaaa1616-0000-4000-8000-000000000001";
+const BILL_EVT_B = "bbbb1616-0000-4000-8000-000000000001";
+
 const STORAGE_A = `${ORG_A}/${IEC_A}/11111111-1111-4111-8111-111111111111.pdf`;
 const STORAGE_B = `${ORG_B}/${IEC_B}/22222222-2222-4222-8222-222222222222.pdf`;
 
@@ -262,6 +268,14 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
         ('${AUDIT_A}', '${ORG_A}', '${USER_A}', 'create', 'shipping_bills', '${SB_A}'),
         ('${AUDIT_B}', '${ORG_B}', '${USER_B}', 'create', 'shipping_bills', '${SB_B}');
 
+      insert into public.trial_notifications (id, org_id, recipient_user_id, recipient_email, kind, channel, status, subject, body_text, upgrade_url, trial_window_key) values
+        ('${TRIAL_NOTIF_A}', '${ORG_A}', '${USER_A}', 'a@export.test', 'trial_day_5', 'email', 'queued', 'Trial reminder', 'Test body A', 'http://localhost:3000/app/billing', '2026-11-19T00:00:00.000Z'),
+        ('${TRIAL_NOTIF_B}', '${ORG_B}', '${USER_B}', 'b@export.test', 'trial_day_5', 'email', 'queued', 'Trial reminder', 'Test body B', 'http://localhost:3000/app/billing', '2026-11-19T00:00:00.000Z');
+
+      insert into public.billing_events (id, org_id, actor_id, event_type, metadata) values
+        ('${BILL_EVT_A}', '${ORG_A}', '${USER_A}', 'trial_started', '{}'::jsonb),
+        ('${BILL_EVT_B}', '${ORG_B}', '${USER_B}', 'trial_started', '{}'::jsonb);
+
       insert into storage.objects (bucket_id, name, owner) values
         ('documents', '${STORAGE_A}', '${USER_A}'),
         ('documents', '${STORAGE_B}', '${USER_B}');
@@ -283,6 +297,7 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
     const expectedTables: Array<keyof Database["public"]["Tables"]> = [
       "alerts",
       "audit_log",
+      "billing_events",
       "compliance_rules",
       "dashboard_saved_views",
       "document_parse_runs",
@@ -293,6 +308,7 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
       "incentive_rates",
       "irm_import_batches",
       "memberships",
+      "notification_templates",
       "onboarding_events",
       "onboarding_profiles",
       "org_invites",
@@ -306,6 +322,7 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
       "shipping_bill_items",
       "shipping_bills",
       "subscriptions",
+      "trial_notifications",
       "usage_counters",
     ];
 
@@ -344,6 +361,8 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
         { table: "payment_events", id: PAY_B },
         { table: "usage_counters", id: USAGE_B },
         { table: "audit_log", id: AUDIT_B },
+        { table: "trial_notifications", id: TRIAL_NOTIF_B },
+        { table: "billing_events", id: BILL_EVT_B },
       ];
 
       for (const check of tenantSelectChecks) {

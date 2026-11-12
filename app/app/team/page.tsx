@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { TeamManager } from "@/components/app/team-manager";
 import { ACTIVE_ORG_COOKIE, getAuthenticatedUser } from "@/lib/auth/org-access";
 import { listMembersAndInvites, listUserOrganizations } from "@/lib/auth/repository";
+import { getOrgUsageSnapshot } from "@/lib/billing/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,10 @@ export default async function TeamPage() {
   const activeOrg = organizations.find((o) => o.orgId === activeOrgId) ?? organizations[0];
   if (!activeOrg) redirect("/onboarding");
 
-  const { members, invites } = await listMembersAndInvites(activeOrg.orgId);
+  const [{ members, invites }, usageSnapshot] = await Promise.all([
+    listMembersAndInvites(activeOrg.orgId),
+    getOrgUsageSnapshot(activeOrg.orgId, user.id),
+  ]);
 
   return (
     <TeamManager
@@ -29,6 +33,7 @@ export default async function TeamPage() {
       currentRole={activeOrg.role}
       members={members}
       invites={invites}
+      usageSnapshot={usageSnapshot}
     />
   );
 }

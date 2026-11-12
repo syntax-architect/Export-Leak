@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { IecManager } from "@/components/app/iec-manager";
 import { ACTIVE_ORG_COOKIE, getAuthenticatedUser } from "@/lib/auth/org-access";
 import { listIecProfilesWithAlerts, listUserOrganizations } from "@/lib/auth/repository";
+import { getOrgUsageSnapshot } from "@/lib/billing/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,10 @@ export default async function IecsPage() {
   const activeOrg = organizations.find((o) => o.orgId === activeOrgId) ?? organizations[0];
   if (!activeOrg) redirect("/onboarding");
 
-  const iecs = await listIecProfilesWithAlerts(activeOrg.orgId);
+  const [iecs, usageSnapshot] = await Promise.all([
+    listIecProfilesWithAlerts(activeOrg.orgId),
+    getOrgUsageSnapshot(activeOrg.orgId, user.id),
+  ]);
 
   return (
     <IecManager
@@ -28,6 +32,7 @@ export default async function IecsPage() {
       orgType={activeOrg.type}
       role={activeOrg.role}
       initialIecs={iecs}
+      usageSnapshot={usageSnapshot}
     />
   );
 }

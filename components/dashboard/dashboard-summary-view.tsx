@@ -9,9 +9,9 @@ import {
   Circle,
   FileSpreadsheet,
   HelpCircle,
-  Sparkles,
   Trash2,
 } from "lucide-react";
+import { TrialCountdownBanner } from "@/components/billing/trial-countdown-banner";
 import { TrustFooterBar } from "@/components/trust/trust-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +53,7 @@ const CHECKLIST_ITEMS = [
   { key: "uploadShippingBills" as const, label: "Upload shipping bills", href: "/app/documents" },
   { key: "uploadIrm" as const, label: "Upload IRM export", href: "/app/documents" },
   { key: "reviewMatches" as const, label: "Review matches", href: "/app" },
-  { key: "downloadEbrc" as const, label: "Download first eBRC file", href: "/app" },
+  { key: "downloadEbrc" as const, label: "Download first eBRC file", href: "/app/ebrc" },
 ];
 
 export function DashboardSummaryView({
@@ -159,27 +159,8 @@ export function DashboardSummaryView({
 
   return (
     <div className="flex flex-col gap-5" data-testid="dashboard-summary-root">
-      {summary.planKey === "trial_pro" ? (
-        <div
-          data-testid="trial-pro-banner"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] border border-accent/30 bg-accent-soft p-3.5 text-sm text-accent-soft-fg"
-        >
-          <div className="flex items-center gap-2.5">
-            <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>
-              <strong>7-day Pro trial active</strong>
-              {summary.trialEndsAt ? (
-                <>
-                  {" "}
-                  — full access until <DateText date={summary.trialEndsAt} /> (no card required).
-                </>
-              ) : (
-                " — full access unlocked after your first upload."
-              )}
-            </span>
-          </div>
-          <Badge variant="accent">Pro Trial</Badge>
-        </div>
+      {embeddedInWizard ? (
+        <TrialCountdownBanner planKey={summary.planKey} trialEndsAt={summary.trialEndsAt} />
       ) : null}
 
       {summary.hasDemoData ? (

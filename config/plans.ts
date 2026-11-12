@@ -31,6 +31,13 @@ export interface PlanConfig {
 
 export type PlanRegistry = Record<PlanKey, PlanConfig>;
 
+export type GatedAction = "upload" | "add_iec" | "generate_ebrc" | "invite_seat" | "export_report";
+
+export type PlanLimitKey =
+  "shippingBillsPerMonth" | "maxIecs" | "teamSeats" | "canGenerateEbrc" | "canExportReports";
+
+export const BILLING_GRACE_PERIOD_DAYS = 3;
+
 export const PLANS: PlanRegistry = {
   free: {
     key: "free",
@@ -135,4 +142,22 @@ export function getPlanConfig(planKey: string | null | undefined): PlanConfig {
     return PLANS[planKey as PlanKey];
   }
   return PLANS.free;
+}
+
+export function getRecommendedUpgradePlanKey(
+  currentPlanKey: PlanKey,
+  limitKey: PlanLimitKey
+): PlanKey {
+  if (limitKey === "maxIecs" || limitKey === "teamSeats") {
+    return "consultant_monthly";
+  }
+  if (
+    currentPlanKey === "exporter_monthly" ||
+    currentPlanKey === "exporter_annual" ||
+    currentPlanKey === "consultant_monthly" ||
+    currentPlanKey === "consultant_annual"
+  ) {
+    return "consultant_monthly";
+  }
+  return "exporter_monthly";
 }

@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowLeftRight,
-  CheckCircle2,
   Download,
   FileCheck2,
   FileText,
@@ -17,18 +16,12 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import { UpgradePlanDialog } from "@/components/billing/upgrade-plan-dialog";
+import { UsageMeterCard } from "@/components/billing/usage-meter-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateText } from "@/components/ui/date-text";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import {
@@ -671,10 +664,6 @@ export function DocumentsManager({
   }
 
   const effectiveLimit = usage.trialEligibleForAutoStart ? 50 : usage.shippingBillsLimit;
-  const usagePct =
-    effectiveLimit > 0
-      ? Math.min(100, Math.round((usage.shippingBillsUsed / effectiveLimit) * 100))
-      : 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -686,26 +675,13 @@ export function DocumentsManager({
           </p>
         </div>
 
-        {/* Monthly usage meter */}
-        <Card className="w-full sm:w-auto sm:min-w-[270px]" data-testid="usage-meter-card">
-          <CardContent className="pt-4 sm:pt-4">
-            <div className="flex items-center justify-between gap-3 text-xs font-medium">
-              <span className="text-text">{usage.planDisplayName}</span>
-              <span className="tabular-nums text-text-muted">
-                {usage.shippingBillsUsed} of {effectiveLimit} SBs this month
-              </span>
-            </div>
-            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-muted">
-              <div
-                className={cn(
-                  "h-full rounded-full transition-all",
-                  usagePct >= 100 ? "bg-danger" : usagePct >= 80 ? "bg-warning" : "bg-accent"
-                )}
-                style={{ width: `${usagePct}%` }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <UsageMeterCard
+          planDisplayName={usage.planDisplayName}
+          used={usage.shippingBillsUsed}
+          limit={effectiveLimit}
+          unitLabel="SBs this month"
+          secondaryText={`${usage.shippingBillsUsed} of ${effectiveLimit} shipping bills used this month`}
+        />
       </div>
 
       {batchSummary.totalShippingBills > 0 ? (
@@ -1204,44 +1180,7 @@ export function DocumentsManager({
       )}
 
       {/* Upgrade Dialog shown when server returns 402 PlanLimitError */}
-      <Dialog
-        open={Boolean(upgradePrompt)}
-        onOpenChange={(open) => {
-          if (!open) setUpgradePrompt(null);
-        }}
-      >
-        <DialogContent data-testid="plan-upgrade-dialog">
-          <DialogHeader>
-            <DialogTitle>Monthly shipping bill limit reached</DialogTitle>
-            <DialogDescription>
-              You have used {upgradePrompt?.currentUsage ?? 0} of {upgradePrompt?.limit ?? 0}{" "}
-              shipping bills on your current plan ({upgradePrompt?.currentPlanKey ?? "free"}).
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 text-sm text-text">
-            <div className="rounded-[var(--radius-sm)] border border-accent/30 bg-accent-soft/40 p-3">
-              <p className="font-semibold text-text">
-                Recommended:{" "}
-                {upgradePrompt?.recommendedPlanKey === "consultant_monthly"
-                  ? "Consultant Plan (Up to 25 IECs & 500 SBs/month — ₹2,999/mo)"
-                  : "Exporter Plan (1 IEC & 50 SBs/month + eBRC export — ₹999/mo)"}
-              </p>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-text-muted">
-                <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
-                <span>Existing uploaded files remain readable and downloadable forever.</span>
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setUpgradePrompt(null)}>
-              Close
-            </Button>
-            <Button asChild variant="primary">
-              <Link href="/app">View workspace summary</Link>
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <UpgradePlanDialog details={upgradePrompt} onClose={() => setUpgradePrompt(null)} />
     </div>
   );
 }

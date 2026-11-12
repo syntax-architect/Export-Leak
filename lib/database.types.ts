@@ -31,6 +31,12 @@ export type OnboardingEventType =
   | "tour_started"
   | "tour_completed"
   | "tour_dismissed";
+export type NotificationTemplateChannel = "email" | "whatsapp";
+export type TrialNotificationKind = "trial_day_5" | "trial_day_7";
+export type TrialNotificationChannel = "email" | "whatsapp_template";
+export type TrialNotificationStatus = "queued" | "sent" | "failed" | "stored_template";
+export type BillingEventType =
+  "trial_started" | "trial_day_5_email" | "trial_expired" | "trial_converted" | "trial_extended";
 
 export interface Database {
   public: {
@@ -43,6 +49,8 @@ export interface Database {
           plan_key: string;
           plan_status: string;
           trial_ends_at: string | null;
+          trial_started_at: string | null;
+          trial_converted_at: string | null;
           razorpay_customer_id: string | null;
           ai_parsing_enabled: boolean;
           created_at: string;
@@ -55,6 +63,8 @@ export interface Database {
           plan_key?: string;
           plan_status?: string;
           trial_ends_at?: string | null;
+          trial_started_at?: string | null;
+          trial_converted_at?: string | null;
           razorpay_customer_id?: string | null;
           ai_parsing_enabled?: boolean;
           created_at?: string;
@@ -67,6 +77,8 @@ export interface Database {
           plan_key?: string;
           plan_status?: string;
           trial_ends_at?: string | null;
+          trial_started_at?: string | null;
+          trial_converted_at?: string | null;
           razorpay_customer_id?: string | null;
           ai_parsing_enabled?: boolean;
           created_at?: string;
@@ -1386,6 +1398,145 @@ export interface Database {
           },
         ];
       };
+      notification_templates: {
+        Row: {
+          id: string;
+          key: string;
+          channel: NotificationTemplateChannel;
+          subject: string | null;
+          body_template: string;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          key: string;
+          channel: NotificationTemplateChannel;
+          subject?: string | null;
+          body_template: string;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          key?: string;
+          channel?: NotificationTemplateChannel;
+          subject?: string | null;
+          body_template?: string;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      trial_notifications: {
+        Row: {
+          id: string;
+          org_id: string;
+          recipient_user_id: string | null;
+          recipient_email: string | null;
+          kind: TrialNotificationKind;
+          channel: TrialNotificationChannel;
+          status: TrialNotificationStatus;
+          subject: string | null;
+          body_text: string;
+          unclaimed_incentive_paise: number;
+          upgrade_url: string;
+          trial_ends_at: string | null;
+          trial_window_key: string;
+          provider_message_id: string | null;
+          sent_at: string | null;
+          error: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          recipient_user_id?: string | null;
+          recipient_email?: string | null;
+          kind: TrialNotificationKind;
+          channel: TrialNotificationChannel;
+          status: TrialNotificationStatus;
+          subject?: string | null;
+          body_text: string;
+          unclaimed_incentive_paise?: number;
+          upgrade_url: string;
+          trial_ends_at?: string | null;
+          trial_window_key: string;
+          provider_message_id?: string | null;
+          sent_at?: string | null;
+          error?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          recipient_user_id?: string | null;
+          recipient_email?: string | null;
+          kind?: TrialNotificationKind;
+          channel?: TrialNotificationChannel;
+          status?: TrialNotificationStatus;
+          subject?: string | null;
+          body_text?: string;
+          unclaimed_incentive_paise?: number;
+          upgrade_url?: string;
+          trial_ends_at?: string | null;
+          trial_window_key?: string;
+          provider_message_id?: string | null;
+          sent_at?: string | null;
+          error?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trial_notifications_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      billing_events: {
+        Row: {
+          id: string;
+          org_id: string;
+          actor_id: string | null;
+          event_type: BillingEventType;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          actor_id?: string | null;
+          event_type: BillingEventType;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          actor_id?: string | null;
+          event_type?: BillingEventType;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -1420,6 +1571,34 @@ export interface Database {
       increment_shipping_bill_usage: {
         Args: { target_org_id: string; target_period_start: string; delta?: number };
         Returns: number;
+      };
+      commit_document_with_usage: {
+        Args: {
+          p_doc_id: string;
+          p_org_id: string;
+          p_iec_id: string;
+          p_kind: string;
+          p_storage_path: string;
+          p_sha256: string;
+          p_original_name: string;
+          p_file_size_bytes: number;
+          p_mime_type: string;
+          p_actor_id: string;
+          p_period_start: string;
+          p_increment_usage: boolean;
+        };
+        Returns: Array<{
+          id: string;
+          iec_id: string;
+          kind: DocumentKind;
+          original_name: string;
+          parse_status: DocumentParseStatus;
+          file_size_bytes: number | null;
+          mime_type: string | null;
+          parse_error: string | null;
+          sha256: string;
+          created_at: string;
+        }>;
       };
     };
     Enums: Record<string, never>;
