@@ -1,0 +1,332 @@
+[
+  {
+    "file": "sb-01-icegate-garment.pdf",
+    "layout": "ICEGATE Web Print",
+    "truth": {
+      "sbNumber": "7458210",
+      "sbDate": "2026-10-14",
+      "portCode": "INNSA1",
+      "leoDate": "2026-10-16",
+      "invoiceNo": "EXP/26-27/1041",
+      "buyerName": "NORDIC APPAREL TRADING AB",
+      "currency": "USD",
+      "fobMinor": 2500000,
+      "schemesClaimed": ["rodtep", "drawback"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "62052000",
+          "fobMinor": 1440000,
+          "quantity": "1200",
+          "uqc": "PCS"
+        },
+        {
+          "hsCode": "62046200",
+          "fobMinor": 1060000,
+          "quantity": "800",
+          "uqc": "PCS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-02-icegate-pharma-multipage.pdf",
+    "layout": "ICEGATE Multi-Page Print",
+    "truth": {
+      "sbNumber": "8120394",
+      "sbDate": "2026-10-21",
+      "portCode": "INBOM4",
+      "leoDate": "2026-10-22",
+      "invoiceNo": "PH-2026-883",
+      "buyerName": "HELVETICA PHARMA GMBH",
+      "currency": "EUR",
+      "fobMinor": 3200000,
+      "schemesClaimed": ["rodtep"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "30049099",
+          "fobMinor": 1850000,
+          "quantity": "5000",
+          "uqc": "BOX"
+        },
+        {
+          "hsCode": "30042099",
+          "fobMinor": 925000,
+          "quantity": "2500",
+          "uqc": "BOX"
+        },
+        {
+          "hsCode": "30039090",
+          "fobMinor": 425000,
+          "quantity": "450",
+          "uqc": "KGS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-03-cha-summary-tiles.pdf",
+    "layout": "CHA Generated Checklist Summary",
+    "truth": {
+      "sbNumber": "6391820",
+      "sbDate": "2026-11-05",
+      "portCode": "INMUN1",
+      "leoDate": "2026-11-06",
+      "invoiceNo": "MORBI/26/402",
+      "buyerName": "GULF CERAMIC IMPORTS LLC",
+      "currency": "USD",
+      "fobMinor": 3250000,
+      "schemesClaimed": ["rodtep"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "69072100",
+          "fobMinor": 2100000,
+          "quantity": "4200",
+          "uqc": "SQM"
+        },
+        {
+          "hsCode": "69072200",
+          "fobMinor": 1150000,
+          "quantity": "1500",
+          "uqc": "SQM"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-04-cha-engineering-inr.pdf",
+    "layout": "CHA INR Invoice Summary",
+    "truth": {
+      "sbNumber": "5541209",
+      "sbDate": "2026-10-08",
+      "portCode": "INMAA1",
+      "leoDate": "2026-10-10",
+      "invoiceNo": "ENG-INR-26-091",
+      "buyerName": "SAARC PRECISION DISTRIBUTORS",
+      "currency": "INR",
+      "fobMinor": 97500000,
+      "schemesClaimed": ["rodtep", "drawback"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "87089900",
+          "fobMinor": 97500000,
+          "quantity": "1500",
+          "uqc": "NOS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-05-ices-edi-textiles.pdf",
+    "layout": "ICES EDI Condensed Print",
+    "truth": {
+      "sbNumber": "9012478",
+      "sbDate": "2026-10-12",
+      "portCode": "INTUT1",
+      "leoDate": "2026-10-13",
+      "invoiceNo": "TIR-KNIT-9912",
+      "buyerName": "HIGH STREET TEXTILES LTD",
+      "currency": "GBP",
+      "fobMinor": 2025050,
+      "schemesClaimed": ["rosctl"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "61091000",
+          "fobMinor": 1200000,
+          "quantity": "3000",
+          "uqc": "PCS"
+        },
+        {
+          "hsCode": "61051020",
+          "fobMinor": 825050,
+          "quantity": "1500",
+          "uqc": "PCS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-06-icegate-leather.pdf",
+    "layout": "ICEGATE DD-MMM-YYYY Print",
+    "truth": {
+      "sbNumber": "4419802",
+      "sbDate": "2026-11-03",
+      "portCode": "INCCU1",
+      "leoDate": "2026-11-04",
+      "invoiceNo": "CAL-LTH-508",
+      "buyerName": "MILANO PELLETTERIA SRL",
+      "currency": "EUR",
+      "fobMinor": 2800000,
+      "schemesClaimed": ["rodtep", "drawback"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "42022110",
+          "fobMinor": 1860000,
+          "quantity": "600",
+          "uqc": "NOS"
+        },
+        {
+          "hsCode": "42031010",
+          "fobMinor": 940000,
+          "quantity": "150",
+          "uqc": "NOS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-07-cha-spices-bulk.pdf",
+    "layout": "CHA Bulk Spices Format",
+    "truth": {
+      "sbNumber": "3829104",
+      "sbDate": "2026-10-28",
+      "portCode": "INCOK1",
+      "leoDate": "2026-10-29",
+      "invoiceNo": "KOC-SP-2201",
+      "buyerName": "AL-MAHA SPICE TRADERS",
+      "currency": "AED",
+      "fobMinor": 8550950,
+      "schemesClaimed": ["rodtep"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "09041130",
+          "fobMinor": 8550950,
+          "quantity": "4500.5",
+          "uqc": "KGS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-08-icegate-machinery.pdf",
+    "layout": "ICEGATE Copy Before LEO",
+    "truth": {
+      "sbNumber": "7781235",
+      "sbDate": "2026-11-09",
+      "portCode": "INPAV1",
+      "leoDate": null,
+      "invoiceNo": "RAJKOT-PUMP-771",
+      "buyerName": "PACIFIC FLOW SYSTEMS PTE LTD",
+      "currency": "SGD",
+      "fobMinor": 2480000,
+      "schemesClaimed": ["drawback"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "84137099",
+          "fobMinor": 2480000,
+          "quantity": "80",
+          "uqc": "SET"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-09-cha-chemicals.pdf",
+    "layout": "CHA DD MMM YYYY Layout",
+    "truth": {
+      "sbNumber": "5190441",
+      "sbDate": "2026-10-18",
+      "portCode": "INHAZ1",
+      "leoDate": "2026-10-20",
+      "invoiceNo": "GUJ-CHEM-309",
+      "buyerName": "EUROCHEM INDUSTRIAL BV",
+      "currency": "USD",
+      "fobMinor": 4600000,
+      "schemesClaimed": ["rodtep", "drawback"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "29173990",
+          "fobMinor": 2640000,
+          "quantity": "12000",
+          "uqc": "KGS"
+        },
+        {
+          "hsCode": "32041739",
+          "fobMinor": 1960000,
+          "quantity": "4000",
+          "uqc": "KGS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-10-icegate-agri-rice.pdf",
+    "layout": "ICEGATE Export Print",
+    "truth": {
+      "sbNumber": "6904321",
+      "sbDate": "2026-10-25",
+      "portCode": "INNSA1",
+      "leoDate": "2026-10-26",
+      "invoiceNo": "KRN-RICE-812",
+      "buyerName": "RED SEA FOODS EST",
+      "currency": "INR",
+      "fobMinor": 212500000,
+      "schemesClaimed": ["rodtep"],
+      "expectedStatus": "done",
+      "items": [
+        {
+          "hsCode": "10063020",
+          "fobMinor": 212500000,
+          "quantity": "25",
+          "uqc": "MTS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-11-scanned-lowtext.pdf",
+    "layout": "Scanned Image-Only PDF (OCR Fallback)",
+    "truth": {
+      "sbNumber": "9981122",
+      "sbDate": "2026-11-02",
+      "portCode": "INNSA1",
+      "leoDate": null,
+      "invoiceNo": "SCAN-001",
+      "buyerName": "SCANNED IMPORTS CO",
+      "currency": "USD",
+      "fobMinor": 600000,
+      "schemesClaimed": [],
+      "expectedStatus": "needs_review",
+      "items": [
+        {
+          "hsCode": "62052000",
+          "fobMinor": 600000,
+          "quantity": "500",
+          "uqc": "PCS"
+        }
+      ]
+    }
+  },
+  {
+    "file": "sb-12-uncertain-edge.pdf",
+    "layout": "Uncertain Edge Case (Partial HS + FOB Mismatch -> Review Required)",
+    "truth": {
+      "sbNumber": "4100998",
+      "sbDate": "2026-11-01",
+      "portCode": "INBOM4",
+      "leoDate": null,
+      "invoiceNo": "EDGE/26/009",
+      "buyerName": null,
+      "currency": "USD",
+      "fobMinor": 650000,
+      "schemesClaimed": ["rodtep"],
+      "expectedStatus": "needs_review",
+      "items": [
+        {
+          "hsCode": "848190",
+          "fobMinor": 500000,
+          "quantity": "200",
+          "uqc": "NOS"
+        }
+      ]
+    }
+  }
+]

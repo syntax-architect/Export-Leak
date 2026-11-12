@@ -1,0 +1,11 @@
+.next
+node_modules
+coverage
+playwright-report
+test-results
+next-env.d.ts
+ExportLeak_2_Build_Prompt_Pack.pdf
+CLAUDE.md
+docs/irm-matching-report.md
+docs/shipping-bill-parser-accuracy.md
+

@@ -1,0 +1,5 @@
+"FIRC / IRM Ref","Bank","Credit Date","Currency","Remittance Value","Already Utilised","Remitter","Payment Narration"
+"IRM-HDFC-26007","HDFC Bank","25/10/2026","INR","4,20,000.00","0.00","KAVERI OVERSEAS TRADING","INR Vostro Inv EXP-INR-881"
+"IRM-KOTAK-26008","Kotak Mahindra Bank","06-11-2026","USD","8,500.00","0.00","ALPS MACHINERY AG","ADVANCE OR DUPLICATE INV/DUP/900"
+"IRM-KOTAK-26009","Kotak Mahindra Bank","08-11-2026","USD","7,150.00","0.00","ALPS MACHINERY AG","SETTLEMENT AGAINST INV/DUP/900"
+"IRM-BAD-ROW","Kotak Mahindra Bank","31/02/2026","USD","0.00","0.00","INVALID DATE CORP","SHOULD REPORT ROW ERROR"
