@@ -144,6 +144,14 @@ export function getPlanConfig(planKey: string | null | undefined): PlanConfig {
   return PLANS.free;
 }
 
+export function getRazorpayPlanId(planKey: PlanKey): string | null {
+  const plan = PLANS[planKey];
+  if (!plan?.razorpayPlanIdEnvVar) return null;
+  const envKey = plan.razorpayPlanIdEnvVar;
+  const altKey = envKey.replace("RAZORPAY_PLAN_", "RAZORPAY_PLAN_ID_");
+  return process.env[envKey] ?? process.env[altKey] ?? null;
+}
+
 export function getRecommendedUpgradePlanKey(
   currentPlanKey: PlanKey,
   limitKey: PlanLimitKey

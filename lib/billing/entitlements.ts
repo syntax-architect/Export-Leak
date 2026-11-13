@@ -42,6 +42,7 @@ export interface OrgUsageSnapshot extends OrgUsageSummary {
   billingState: OrgBillingState;
   graceEndsAt: string | null;
   trialEndsAt: string | null;
+  currentEnd: string | null;
   iecsUsed: number;
   maxIecs: number;
   seatsUsed: number;
@@ -428,6 +429,7 @@ export async function getOrgUsageSnapshot(
     billingState: resolved.billingState,
     graceEndsAt: resolved.graceEndsAt,
     trialEndsAt: resolved.trialEndsAt,
+    currentEnd: resolved.currentEnd,
     iecsUsed: dbState.iecsUsed,
     maxIecs: resolved.entitlements.maxIecs,
     seatsUsed: dbState.seatsUsed,

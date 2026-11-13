@@ -36,6 +36,7 @@ export default async function BillingPage({
       orgName={activeOrg.name}
       usage={usage}
       highlightedPlanKey={highlightedPlanKey}
+      userEmail={user.email}
     />
   );
 }

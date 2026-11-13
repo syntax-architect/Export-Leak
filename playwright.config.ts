@@ -31,6 +31,7 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       EXPORTLEAK_E2E_ADAPTER: "pglite",
+      RAZORPAY_WEBHOOK_SECRET: "your-razorpay-webhook-secret",
     },
   },
 });
