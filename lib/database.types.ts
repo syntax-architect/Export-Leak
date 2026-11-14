@@ -1672,6 +1672,57 @@ export interface Database {
           },
         ];
       };
+      shared_reports: {
+        Row: {
+          id: string;
+          org_id: string;
+          iec_id: string | null;
+          token: string;
+          title: string;
+          totals: Json;
+          expires_at: string;
+          revoked_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          iec_id?: string | null;
+          token: string;
+          title?: string;
+          totals?: Json;
+          expires_at?: string;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          iec_id?: string | null;
+          token?: string;
+          title?: string;
+          totals?: Json;
+          expires_at?: string;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shared_reports_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shared_reports_iec_id_fkey";
+            columns: ["iec_id"];
+            isOneToOne: false;
+            referencedRelation: "iec_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {

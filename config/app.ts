@@ -7,6 +7,7 @@ export const APP_CONFIG = {
   locale: "en-IN",
   defaultCurrency: "INR",
   dateFormatLabel: "DD MMM YYYY",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://exportleak.in",
 } as const;
 
 export type AppConfig = typeof APP_CONFIG;

@@ -30,7 +30,9 @@ export function PublicFooter() {
 
           {/* Product links */}
           <div className="flex flex-col gap-2.5">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text">Product</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-text">
+              Product &amp; Tools
+            </h3>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link href="/pricing" className="hover:text-text transition-colors">
@@ -38,18 +40,26 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-text transition-colors">
-                  7-Day Card-Free Trial
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="hover:text-text transition-colors">
-                  Bulk eBRC Generator
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="hover:text-text transition-colors">
+                <Link href="/tools/calculator" className="hover:text-text transition-colors">
                   RoDTEP &amp; Drawback Calculator
+                </Link>
+              </li>
+              <li>
+                <Link href="/tools/ebrc-validator" className="hover:text-text transition-colors">
+                  Bulk eBRC Excel Validator
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/tools/shipping-bill-extractor"
+                  className="hover:text-text transition-colors"
+                >
+                  Shipping Bill PDF Extractor
+                </Link>
+              </li>
+              <li>
+                <Link href="/learn" className="hover:text-text transition-colors">
+                  EXIM Compliance Glossary
                 </Link>
               </li>
             </ul>

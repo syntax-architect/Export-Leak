@@ -320,6 +320,7 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
       "sb_remittance_matches",
       "sb_remittance_rejections",
       "scrips",
+      "shared_reports",
       "shipping_bill_corrections",
       "shipping_bill_items",
       "shipping_bills",

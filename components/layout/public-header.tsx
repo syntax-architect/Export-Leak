@@ -22,6 +22,18 @@ export function PublicHeader() {
         {/* Desktop navigation */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main navigation">
           <Link
+            href="/tools/calculator"
+            className="text-sm font-medium text-text-muted transition-colors hover:text-text"
+          >
+            Free Tools
+          </Link>
+          <Link
+            href="/learn"
+            className="text-sm font-medium text-text-muted transition-colors hover:text-text"
+          >
+            Learn EXIM
+          </Link>
+          <Link
             href="/pricing"
             className="text-sm font-medium text-text-muted transition-colors hover:text-text"
           >
@@ -74,6 +86,20 @@ export function PublicHeader() {
       {mobileMenuOpen && (
         <div className="border-b border-border-subtle bg-surface px-4 py-4 md:hidden">
           <nav className="flex flex-col gap-3" aria-label="Mobile navigation">
+            <Link
+              href="/tools/calculator"
+              className="text-sm font-medium text-text hover:text-accent py-1"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Free Tools (Calculator &amp; eBRC)
+            </Link>
+            <Link
+              href="/learn"
+              className="text-sm font-medium text-text hover:text-accent py-1"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Learn EXIM Glossary
+            </Link>
             <Link
               href="/pricing"
               className="text-sm font-medium text-text hover:text-accent py-1"
