@@ -67,6 +67,20 @@ export function getRazorpayCredentials(): RazorpayCredentials {
  * Note: for subscriptions, the payload order is "payment_id|subscription_id" with the key secret.
  * This verification is used strictly for UI messaging/validation. It NEVER activates the plan.
  */
+export async function cancelRazorpaySubscriptionOnGateway(
+  subscriptionId: string,
+  cancelAtCycleEnd = false
+): Promise<void> {
+  try {
+    await callRazorpayApi(`/subscriptions/${subscriptionId}/cancel`, {
+      method: "POST",
+      body: { cancel_at_cycle_end: cancelAtCycleEnd ? 1 : 0 },
+    });
+  } catch {
+    // Ignore if already cancelled or in test mode
+  }
+}
+
 export function verifySubscriptionPaymentSignature(params: {
   paymentId: string;
   subscriptionId: string;

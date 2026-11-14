@@ -25,7 +25,11 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const needsAuth = isProtectedAppRoute(pathname) || isOnboardingRoute(pathname);
 
-  if (isPgliteTestAdapterEnabled()) {
+  const testSessionCookie = request.cookies.get("exportleak_test_session")?.value;
+  if (
+    isPgliteTestAdapterEnabled() ||
+    (process.env.NODE_ENV !== "production" && testSessionCookie)
+  ) {
     const { TEST_SESSION_COOKIE, asPgliteUser, verifyTestSession } =
       await import("@/lib/auth/pglite-adapter");
     const user = verifyTestSession(request.cookies.get(TEST_SESSION_COOKIE)?.value);

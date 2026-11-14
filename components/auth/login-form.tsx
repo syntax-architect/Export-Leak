@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Mail, ShieldCheck } from "lucide-react";
+import { AlertCircle, Mail, ShieldCheck, Zap } from "lucide-react";
 import { APP_CONFIG } from "@/config/app";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ export interface LoginFormProps {
   initialError?: string;
   supabaseEnabled: boolean;
   pgliteTestMode: boolean;
+  devMode?: boolean;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -22,7 +23,7 @@ const ERROR_MESSAGES: Record<string, string> = {
     "That sign-in link has expired or was already used. Enter your email below for a fresh link.",
   auth_failed: "We could not complete sign-in. Please try again.",
   auth_unconfigured:
-    "Supabase Auth keys are not configured yet. Add your project keys to .env.local.",
+    "Supabase Auth keys are not configured yet. You can click 'Force Login' below to bypass login and test the app.",
 };
 
 export function LoginForm({
@@ -30,15 +31,46 @@ export function LoginForm({
   initialError,
   supabaseEnabled,
   pgliteTestMode,
+  devMode = false,
 }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [otpCode, setOtpCode] = React.useState("");
   const [step, setStep] = React.useState<"email" | "otp_sent">("email");
   const [loading, setLoading] = React.useState(false);
+  const [forceLoading, setForceLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(
     initialError ? (ERROR_MESSAGES[initialError] ?? ERROR_MESSAGES.auth_failed ?? null) : null
   );
+
+  async function handleForceLogin(targetEmail?: string) {
+    setErrorMessage(null);
+    setForceLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/force-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: targetEmail?.trim() || undefined,
+          nextPath,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = (await res.json()) as { error?: { message?: string } };
+        setErrorMessage(body.error?.message ?? "Force login failed.");
+        setForceLoading(false);
+        return;
+      }
+
+      const body = (await res.json()) as { redirectTo?: string };
+      window.location.href = body.redirectTo || nextPath || "/app";
+    } catch {
+      setErrorMessage("Could not complete force login. Please try again.");
+      setForceLoading(false);
+    }
+  }
 
   async function handleGoogleLogin() {
     setErrorMessage(null);
@@ -192,6 +224,48 @@ export function LoginForm({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
+        {devMode && (
+          <div className="flex flex-col gap-2.5 rounded-[var(--radius-sm)] border-2 border-dashed border-amber-500/50 bg-amber-500/10 p-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                <Zap className="h-4 w-4" aria-hidden="true" />
+                Dev Mode &bull; Force Login
+              </span>
+              <Badge variant="warning">Bypass Auth</Badge>
+            </div>
+            <p className="text-xs text-text-muted">
+              Supabase Auth setup is pending. Click below to immediately log in and explore the full
+              workspace.
+            </p>
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white shadow-sm font-semibold"
+              onClick={() => handleForceLogin(email)}
+              loading={forceLoading}
+              loadingText="Bypassing authentication..."
+              data-testid="force-login-btn"
+            >
+              <Zap className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>
+                {email.trim() ? `Force Login as ${email.trim()}` : "⚡ Force Login (Demo Account)"}
+              </span>
+            </Button>
+            {email.trim() ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-text-muted hover:text-text"
+                onClick={() => handleForceLogin("demo-exporter@example.invalid")}
+                disabled={forceLoading}
+              >
+                Or Force Login with Default Demo Account
+              </Button>
+            ) : null}
+          </div>
+        )}
+
         {errorMessage ? (
           <div
             role="alert"

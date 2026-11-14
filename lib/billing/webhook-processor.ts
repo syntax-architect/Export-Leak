@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { PLANS, type PlanKey } from "@/config/plans";
+import { cancelRazorpaySubscriptionOnGateway } from "@/lib/billing/razorpay";
 import { formatMoney } from "@/lib/format";
 import { getAppBaseUrl, sendTransactionalEmail } from "@/lib/notifications/email";
 import { isPgliteTestAdapterEnabled } from "@/lib/supabase/config";
@@ -517,6 +518,45 @@ async function executeWebhookStateMachine(params: {
               }),
             ]
           );
+
+          // Double-billing guard: cancel and supersede any other active/pending subscriptions for this organization
+          if (orgId && existingSubInternalId) {
+            const priorSubs = await tx.query<{ id: string; razorpay_subscription_id: string }>(
+              `select id, razorpay_subscription_id
+               from public.subscriptions
+               where org_id = $1
+                 and id != $2
+                 and status in ('active', 'authenticated', 'pending', 'created')`,
+              [orgId, existingSubInternalId]
+            );
+
+            for (const prior of priorSubs.rows) {
+              await tx.query(
+                `update public.subscriptions
+                 set status = 'cancelled',
+                     cancel_at_cycle_end = false,
+                     updated_at = $2
+                 where id = $1`,
+                [prior.id, eventTimestamp]
+              );
+
+              await tx.query(
+                `insert into public.audit_log (org_id, action, entity, entity_id, diff)
+                 values ($1, 'subscription_superseded_and_cancelled', 'subscriptions', $2, $3::jsonb)`,
+                [
+                  orgId,
+                  prior.id,
+                  JSON.stringify({
+                    superseded_by_subscription_id: subId,
+                    prior_razorpay_subscription_id: prior.razorpay_subscription_id,
+                  }),
+                ]
+              );
+
+              // Cancel on gateway to prevent double debit
+              await cancelRazorpaySubscriptionOnGateway(prior.razorpay_subscription_id, false);
+            }
+          }
         }
 
         postActionEmail = { type: "receipt", targetPlanKey };
@@ -763,6 +803,40 @@ async function executeWebhookStateMachine(params: {
             current_end: currentEnd,
           },
         });
+
+        // Double-billing guard: find prior active/pending subscriptions and cancel them
+        const { data: priorSubs } = await service
+          .from("subscriptions")
+          .select("id, razorpay_subscription_id")
+          .eq("org_id", orgId)
+          .neq("id", existingSub.id)
+          .in("status", ["active", "authenticated", "pending", "created"]);
+
+        if (priorSubs && priorSubs.length > 0) {
+          const priorIds = priorSubs.map((s) => s.id);
+          await service
+            .from("subscriptions")
+            .update({
+              status: "cancelled",
+              cancel_at_cycle_end: false,
+              updated_at: eventTimestamp,
+            })
+            .in("id", priorIds);
+
+          for (const prior of priorSubs) {
+            await service.from("audit_log").insert({
+              org_id: orgId,
+              action: "subscription_superseded_and_cancelled",
+              entity: "subscriptions",
+              entity_id: prior.id,
+              diff: {
+                superseded_by_subscription_id: subId,
+                prior_razorpay_subscription_id: prior.razorpay_subscription_id,
+              },
+            });
+            await cancelRazorpaySubscriptionOnGateway(prior.razorpay_subscription_id, false);
+          }
+        }
       }
     }
 

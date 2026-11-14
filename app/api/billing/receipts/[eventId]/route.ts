@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedUser } from "@/lib/auth/org-access";
+import { ForbiddenError, UnauthorizedError } from "@/lib/auth/errors";
+import { getAuthenticatedUser, requireOrgAccess } from "@/lib/auth/org-access";
 import { isPgliteTestAdapterEnabled } from "@/lib/supabase/config";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { PLANS, type PlanKey } from "@/config/plans";
@@ -81,6 +82,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ eve
 
     if (!eventRow) {
       return new NextResponse("Receipt not found", { status: 404 });
+    }
+
+    if (eventRow.org_id) {
+      await requireOrgAccess(eventRow.org_id, "viewer");
+    } else if (!user.isPlatformAdmin) {
+      return new NextResponse("Forbidden", { status: 403 });
     }
 
     const payload = (eventRow.payload ?? {}) as {
@@ -304,6 +311,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ eve
       },
     });
   } catch (err) {
+    if (err instanceof ForbiddenError) {
+      return new NextResponse(err.message, { status: 403 });
+    }
+    if (err instanceof UnauthorizedError) {
+      return new NextResponse(err.message, { status: 401 });
+    }
     const errorMsg = err instanceof Error ? err.message : "Receipt load failed";
     return new NextResponse(errorMsg, { status: 400 });
   }

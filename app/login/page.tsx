@@ -1,5 +1,9 @@
 import { LoginForm } from "@/components/auth/login-form";
-import { isPgliteTestAdapterEnabled, isSupabaseConfigured } from "@/lib/supabase/config";
+import {
+  isForceLoginAllowed,
+  isPgliteTestAdapterEnabled,
+  isSupabaseConfigured,
+} from "@/lib/supabase/config";
 import { sanitizeNextPath } from "@/lib/validation/auth";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +30,7 @@ export default async function LoginPage({
         initialError={params.error}
         supabaseEnabled={isSupabaseConfigured()}
         pgliteTestMode={isPgliteTestAdapterEnabled()}
+        devMode={isForceLoginAllowed()}
       />
     </main>
   );

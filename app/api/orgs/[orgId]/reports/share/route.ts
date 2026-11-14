@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { toErrorResponse } from "@/lib/auth/errors";
+import { ForbiddenError, toErrorResponse } from "@/lib/auth/errors";
 import { requireOrgAccess } from "@/lib/auth/org-access";
 import { isPgliteTestAdapterEnabled } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -37,6 +37,31 @@ export async function POST(request: NextRequest, context: { params: Promise<{ or
     const token = crypto.randomBytes(32).toString("hex");
     const title = body.title?.trim() || "Export Reconciliation Summary";
     const iecId = body.iecId && body.iecId.trim() ? body.iecId.trim() : null;
+
+    if (iecId) {
+      if (isPgliteTestAdapterEnabled()) {
+        const { getPgliteDb } = await import("@/lib/auth/pglite-adapter");
+        const db = await getPgliteDb();
+        const check = await db.query<{ id: string }>(
+          `select id from public.iec_profiles where id = $1 and org_id = $2`,
+          [iecId, access.orgId]
+        );
+        if (!check.rows[0]) {
+          throw new ForbiddenError("IEC profile does not belong to this organization.");
+        }
+      } else {
+        const supabase = await createSupabaseServerClient();
+        const { data: check } = await supabase
+          .from("iec_profiles")
+          .select("id")
+          .eq("id", iecId)
+          .eq("org_id", access.orgId)
+          .maybeSingle();
+        if (!check) {
+          throw new ForbiddenError("IEC profile does not belong to this organization.");
+        }
+      }
+    }
 
     let savedReport: {
       id: string;

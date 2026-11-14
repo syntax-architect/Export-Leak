@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit/memory-rate-limiter";
+import { validateMagicBytes } from "@/lib/documents/file-security";
 import {
   autoFixBulkEbrcRows,
   parseBulkEbrcWorkbook,
@@ -27,7 +28,12 @@ export async function POST(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const autoFixRequested = searchParams.get("autoFix") === "true";
 
-    const formData = await request.formData();
+    let formData: FormData;
+    try {
+      formData = await request.formData();
+    } catch {
+      return NextResponse.json({ error: "Invalid form data submission." }, { status: 400 });
+    }
     const file = formData.get("file");
 
     if (!file || typeof file === "string" || !(file instanceof Blob)) {
@@ -47,6 +53,13 @@ export async function POST(request: NextRequest) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
+    const magicCheck = validateMagicBytes(new Uint8Array(arrayBuffer), "xlsx");
+    if (!magicCheck.valid) {
+      return NextResponse.json(
+        { error: magicCheck.reason ?? "Invalid or unsafe XLSX Excel file signature." },
+        { status: 400 }
+      );
+    }
     const buffer = Buffer.from(arrayBuffer);
 
     // Parse workbook in memory

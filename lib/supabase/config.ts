@@ -1,5 +1,16 @@
 export function isPgliteTestAdapterEnabled(): boolean {
-  return process.env.NODE_ENV !== "production" && process.env.EXPORTLEAK_E2E_ADAPTER === "pglite";
+  if (process.env.NODE_ENV === "production") {
+    return false;
+  }
+  return (
+    process.env.EXPORTLEAK_E2E_ADAPTER === "pglite" ||
+    process.env.EXPORTLEAK_FORCE_DEV_LOGIN === "true" ||
+    !isSupabaseConfigured()
+  );
+}
+
+export function isForceLoginAllowed(): boolean {
+  return process.env.NODE_ENV !== "production";
 }
 
 export function isSupabaseConfigured(): boolean {

@@ -34,16 +34,23 @@ export function hasMinRole(actual: MembershipRole, required: MembershipRole): bo
 const uuidSchema = z.string().uuid();
 
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+  const cookieStore = await cookies();
+  const { TEST_SESSION_COOKIE, verifyTestSession } = await import("@/lib/auth/pglite-adapter");
+  const testCookie = cookieStore.get(TEST_SESSION_COOKIE)?.value;
+
+  if (testCookie && (isPgliteTestAdapterEnabled() || process.env.NODE_ENV !== "production")) {
+    const session = verifyTestSession(testCookie);
+    if (session) {
+      return {
+        id: session.id,
+        email: session.email,
+        isPlatformAdmin: session.isPlatformAdmin,
+      };
+    }
+  }
+
   if (isPgliteTestAdapterEnabled()) {
-    const cookieStore = await cookies();
-    const { TEST_SESSION_COOKIE, verifyTestSession } = await import("@/lib/auth/pglite-adapter");
-    const session = verifyTestSession(cookieStore.get(TEST_SESSION_COOKIE)?.value);
-    if (!session) return null;
-    return {
-      id: session.id,
-      email: session.email,
-      isPlatformAdmin: session.isPlatformAdmin,
-    };
+    return null;
   }
 
   const supabase = await createSupabaseServerClient();
