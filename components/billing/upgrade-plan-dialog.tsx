@@ -112,15 +112,24 @@ export function UpgradePlanDialog({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="ghost" onClick={onClose}>
-            Close
-          </Button>
-          <Button asChild variant="primary">
-            <Link href={`/app/billing?highlight=${encodeURIComponent(recommendedPlan.key)}`}>
-              Choose a plan
-            </Link>
-          </Button>
+        <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <Link
+            href={`/pricing?highlight=${encodeURIComponent(recommendedPlan.key)}`}
+            className="text-xs text-accent underline hover:text-accent/80"
+            onClick={onClose}
+          >
+            Compare all features on pricing page
+          </Link>
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="ghost" onClick={onClose}>
+              Close
+            </Button>
+            <Button asChild variant="primary">
+              <Link href={`/app/billing?highlight=${encodeURIComponent(recommendedPlan.key)}`}>
+                Choose a plan
+              </Link>
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

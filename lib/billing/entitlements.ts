@@ -40,6 +40,8 @@ export interface OrgUsageSummary {
 
 export interface OrgUsageSnapshot extends OrgUsageSummary {
   billingState: OrgBillingState;
+  planStatus?: string;
+  cancelAtCycleEnd?: boolean;
   graceEndsAt: string | null;
   trialEndsAt: string | null;
   currentEnd: string | null;
@@ -427,6 +429,8 @@ export async function getOrgUsageSnapshot(
     shippingBillsLimit: resolved.entitlements.shippingBillsPerMonth,
     trialEligibleForAutoStart: resolved.trialEligibleForAutoStart,
     billingState: resolved.billingState,
+    planStatus: dbState.planStatus,
+    cancelAtCycleEnd: dbState.subCancelAtCycleEnd,
     graceEndsAt: resolved.graceEndsAt,
     trialEndsAt: resolved.trialEndsAt,
     currentEnd: resolved.currentEnd,

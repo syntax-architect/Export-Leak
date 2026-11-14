@@ -7,8 +7,11 @@ import {
   AlertTriangle,
   CheckCircle2,
   CreditCard,
+  Download,
+  FileText,
   Loader2,
   MessageSquare,
+  RefreshCw,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -111,7 +114,37 @@ export function BillingOverview({
   // Cancellation modal state
   const [isCancelModalOpen, setIsCancelModalOpen] = React.useState(false);
   const [isCanceling, setIsCanceling] = React.useState(false);
-  const [cancelConfirmed, setCancelConfirmed] = React.useState(false);
+  const [cancelConfirmed, setCancelConfirmed] = React.useState(Boolean(usage.cancelAtCycleEnd));
+
+  // Billing history state
+  interface HistoryItem {
+    id: string;
+    eventType: string;
+    amountPaise: number;
+    planKey: string;
+    status: string;
+    createdAt: string;
+  }
+  const [history, setHistory] = React.useState<HistoryItem[]>([]);
+  const [loadingHistory, setLoadingHistory] = React.useState(true);
+
+  React.useEffect(() => {
+    let active = true;
+    fetch(`/api/billing/history?orgId=${encodeURIComponent(usage.orgId)}`)
+      .then((res) => (res.ok ? res.json() : { events: [] }))
+      .then((data: { events?: HistoryItem[] }) => {
+        if (active) {
+          setHistory(data.events ?? []);
+          setLoadingHistory(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoadingHistory(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [usage.orgId]);
 
   // Active polling reference
   const pollingRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -361,10 +394,55 @@ export function BillingOverview({
             {orgName}.
           </p>
         </div>
-        <Button asChild variant="secondary" size="sm" className="min-h-11">
-          <Link href="/app">Back to workspace</Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="secondary" size="sm" className="min-h-11">
+            <a
+              href={`/api/orgs/${encodeURIComponent(usage.orgId)}/export-data`}
+              download
+              data-testid="export-all-data-btn"
+            >
+              <Download className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              <span>Export my data</span>
+            </a>
+          </Button>
+          <Button asChild variant="secondary" size="sm" className="min-h-11">
+            <Link href="/app">Back to workspace</Link>
+          </Button>
+        </div>
       </div>
+
+      {/* Dunning Banner for Past Due / Grace Period states */}
+      {(usage.billingState === "grace_period" || usage.planStatus === "past_due") && (
+        <div
+          className="rounded-[var(--radius-sm)] border border-warning bg-warning-soft/40 p-4 text-text shadow-[var(--shadow-sm)]"
+          data-testid="dunning-warning-banner"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-warning mt-0.5" aria-hidden="true" />
+              <div>
+                <h3 className="font-semibold text-text">
+                  Action Required: Recurring Payment Failed (3-Day Grace Period)
+                </h3>
+                <p className="mt-0.5 text-xs text-text-muted">
+                  Your recurring subscription payment was not successful. Your features remain
+                  active during the 3-day grace period. Please update your payment method to avoid
+                  downgrade.
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              className="min-h-11 shrink-0"
+              onClick={() => initiateSubscription(usage.planKey)}
+            >
+              Update payment method
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
@@ -398,14 +476,21 @@ export function BillingOverview({
                   will move gently to Free with all uploaded data kept readable.
                 </>
               ) : usage.billingState === "active_subscription" ? (
-                <>
-                  Subscription active. Recurring billing is managed automatically via Razorpay.
+                <div className="space-y-1">
+                  <div>
+                    Subscription active via Razorpay. Next billing cycle:{" "}
+                    {usage.currentEnd ? <DateText date={usage.currentEnd} /> : "End of cycle"} (
+                    {formatMoney(currentPlan.pricePaise, "INR", { showDecimals: "never" })}).
+                  </div>
+                  <div className="text-xs text-text-muted">
+                    Payment method: Recurring mandate (UPI Autopay / Card)
+                  </div>
                   {cancelConfirmed && (
-                    <span className="ml-2 font-medium text-warning">
-                      (Cancels at cycle end. You retain full access until then.)
-                    </span>
+                    <div className="font-medium text-warning">
+                      Cancels at cycle end. You retain full access to all features until then.
+                    </div>
                   )}
-                </>
+                </div>
               ) : (
                 "Existing uploaded PDFs, parsed Shipping Bills, and matched records remain readable regardless of plan tier."
               )}
@@ -414,15 +499,28 @@ export function BillingOverview({
 
           {isPaidActive && (
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-text-muted hover:text-danger"
-                onClick={() => setIsCancelModalOpen(true)}
-                data-testid="cancel-subscription-trigger"
-              >
-                Cancel subscription
-              </Button>
+              {cancelConfirmed ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="min-h-11 text-xs"
+                  onClick={() => initiateSubscription(usage.planKey)}
+                  data-testid="resume-subscription-btn"
+                >
+                  <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Resume subscription</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="min-h-11 text-xs text-text-muted hover:text-danger"
+                  onClick={() => setIsCancelModalOpen(true)}
+                  data-testid="cancel-subscription-trigger"
+                >
+                  Cancel subscription
+                </Button>
+              )}
             </div>
           )}
         </CardHeader>
@@ -548,6 +646,90 @@ export function BillingOverview({
           })}
         </div>
       </section>
+
+      {/* Billing History & Receipts */}
+      <Card data-testid="billing-history-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-accent" aria-hidden="true" />
+                <span>Billing History &amp; Receipts</span>
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Electronic payment receipts for all charges confirmed via Razorpay.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingHistory ? (
+            <div className="flex items-center gap-2 text-xs text-text-muted py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-accent" />
+              <span>Loading payment history...</span>
+            </div>
+          ) : history.length === 0 ? (
+            <p className="text-xs text-text-muted py-2">
+              No payment transactions recorded yet. When your subscription is charged, receipts will
+              appear here immediately.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-border-subtle bg-surface-muted/40 text-text">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Date</th>
+                    <th className="px-3 py-2 font-medium">Description</th>
+                    <th className="px-3 py-2 font-medium">Amount</th>
+                    <th className="px-3 py-2 font-medium">Status</th>
+                    <th className="px-3 py-2 font-medium text-right">Receipt</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {history.map((item) => (
+                    <tr key={item.id} className="hover:bg-surface-muted/20">
+                      <td className="px-3 py-2.5 text-text-muted">
+                        <DateText date={item.createdAt} />
+                      </td>
+                      <td className="px-3 py-2.5 font-medium text-text">
+                        {PLANS[item.planKey as PlanKey]?.displayName || item.planKey}
+                      </td>
+                      <td className="px-3 py-2.5 font-semibold text-text">
+                        {formatMoney(item.amountPaise, "INR")}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <Badge
+                          variant={
+                            item.status === "paid"
+                              ? "success"
+                              : item.status === "refunded"
+                                ? "warning"
+                                : "danger"
+                          }
+                        >
+                          {item.status.toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <Button asChild variant="ghost" size="sm" className="h-8 text-xs">
+                          <a
+                            href={`/api/billing/receipts/${encodeURIComponent(item.id)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Download className="mr-1 h-3 w-3" />
+                            <span>Receipt</span>
+                          </a>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Payment status modal (verifying, activating, success, delayed, plan-change) */}
       <PaymentStatusModal
