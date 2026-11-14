@@ -2,13 +2,11 @@
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion } from "framer-motion";
 import { Slot } from "radix-ui";
-import { MOTION_TIMING, useMotionEnabled } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:pointer-events-none disabled:opacity-55 cursor-pointer select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:pointer-events-none disabled:opacity-55 cursor-pointer select-none active:scale-[0.98]",
   {
     variants: {
       variant: {
@@ -55,7 +53,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const motionEnabled = useMotionEnabled();
     const isDisabled = Boolean(disabled || loading);
 
     if (asChild) {
@@ -82,34 +79,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       children
     );
 
-    if (!motionEnabled || isDisabled) {
-      return (
-        <button
-          ref={ref}
-          type={type}
-          disabled={isDisabled}
-          aria-busy={loading || undefined}
-          className={cn(buttonVariants({ variant, size, className }))}
-          {...props}
-        >
-          {content}
-        </button>
-      );
-    }
-
     return (
-      <motion.button
+      <button
         ref={ref}
         type={type}
         disabled={isDisabled}
         aria-busy={loading || undefined}
-        whileTap={{ scale: MOTION_TIMING.buttonPressScale }}
-        transition={{ duration: 0.1 }}
         className={cn(buttonVariants({ variant, size, className }))}
-        {...(props as React.ComponentProps<typeof motion.button>)}
+        {...props}
       >
         {content}
-      </motion.button>
+      </button>
     );
   }
 );

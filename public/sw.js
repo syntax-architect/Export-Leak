@@ -45,6 +45,11 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
+  // Bypass service worker entirely for local development to avoid HMR / chunk conflicts
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+    return;
+  }
+
   // Only handle HTTP/HTTPS GET requests
   if (request.method !== "GET" || !url.protocol.startsWith("http")) {
     return;

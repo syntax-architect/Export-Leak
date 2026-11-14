@@ -4,6 +4,7 @@ import { ForbiddenError, toErrorResponse } from "@/lib/auth/errors";
 import { requireOrgAccess } from "@/lib/auth/org-access";
 import { isPgliteTestAdapterEnabled } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { enforceRateLimit } from "@/lib/rate-limit/memory-rate-limiter";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,11 @@ export interface CreateSharedReportInput {
 
 export async function POST(request: NextRequest, context: { params: Promise<{ orgId: string }> }) {
   try {
+    if (!process.env.VITEST) {
+      const rateCheck = enforceRateLimit(request, "reports_share", "MUTATIONS");
+      if (!rateCheck.allowed) return rateCheck.response;
+    }
+
     const { orgId } = await context.params;
     const access = await requireOrgAccess(orgId, "viewer");
     const body: CreateSharedReportInput = await request.json().catch(() => ({}));

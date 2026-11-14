@@ -81,80 +81,105 @@ const globalForPglite = globalThis as unknown as {
 async function createAndMigratePglite(): Promise<PGlite> {
   assertNotProduction();
   const { PGlite } = await import("@electric-sql/pglite");
-  const db = new PGlite();
 
-  await db.exec(`
-    create role anon nologin;
-    create role authenticated nologin;
-    create role service_role nologin bypassrls;
+  const isVitest = Boolean(process.env.VITEST);
+  const dataDir = isVitest ? undefined : path.resolve(process.cwd(), ".tmp-storage", "pglite-dev");
+  if (dataDir) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
 
-    create schema if not exists auth;
-    create schema if not exists storage;
+  const db = new PGlite(dataDir);
+  await db.waitReady;
 
-    create table auth.users (
-      id uuid primary key,
-      email text unique
+  let isInitialized = false;
+  try {
+    const checkRes = await db.query<{ count: string }>(
+      `select count(*)::text as count from information_schema.tables where table_schema = 'public' and table_name = '_exportleak_migrations'`
     );
+    isInitialized = Number(checkRes.rows[0]?.count ?? "0") > 0;
+  } catch {
+    isInitialized = false;
+  }
 
-    create or replace function auth.uid()
-    returns uuid
-    language sql
-    stable
-    as $$
-      select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
-    $$;
+  if (!isInitialized) {
+    await db.exec(`
+      create role anon nologin;
+      create role authenticated nologin;
+      create role service_role nologin bypassrls;
 
-    create or replace function auth.role()
-    returns text
-    language sql
-    stable
-    as $$
-      select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), current_user);
-    $$;
+      create schema if not exists auth;
+      create schema if not exists storage;
 
-    create or replace function auth.jwt()
-    returns jsonb
-    language sql
-    stable
-    as $$
-      select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb);
-    $$;
+      create table auth.users (
+        id uuid primary key,
+        email text unique
+      );
 
-    create table storage.buckets (
-      id text primary key,
-      name text not null,
-      public boolean not null default false,
-      file_size_limit bigint,
-      allowed_mime_types text[]
-    );
+      create or replace function auth.uid()
+      returns uuid
+      language sql
+      stable
+      as $$
+        select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
+      $$;
 
-    create table storage.objects (
-      id uuid primary key default gen_random_uuid(),
-      bucket_id text not null references storage.buckets(id),
-      name text not null,
-      owner uuid
-    );
+      create or replace function auth.role()
+      returns text
+      language sql
+      stable
+      as $$
+        select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), current_user);
+      $$;
 
-    alter table storage.objects enable row level security;
+      create or replace function auth.jwt()
+      returns jsonb
+      language sql
+      stable
+      as $$
+        select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb);
+      $$;
 
-    create or replace function storage.foldername(name text)
-    returns text[]
-    language sql
-    immutable
-    as $$
-      select case
-        when array_length(regexp_split_to_array(name, '/'), 1) > 1
-        then (regexp_split_to_array(name, '/'))[1:array_length(regexp_split_to_array(name, '/'), 1) - 1]
-        else array[]::text[]
-      end;
-    $$;
+      create table storage.buckets (
+        id text primary key,
+        name text not null,
+        public boolean not null default false,
+        file_size_limit bigint,
+        allowed_mime_types text[]
+      );
 
-    grant usage on schema public, auth, storage to authenticated, service_role;
-    grant select on storage.buckets to authenticated;
-    grant select, insert, update, delete on storage.objects to authenticated;
-    grant execute on all functions in schema auth to authenticated;
-    grant execute on all functions in schema storage to authenticated;
-  `);
+      create table storage.objects (
+        id uuid primary key default gen_random_uuid(),
+        bucket_id text not null references storage.buckets(id),
+        name text not null,
+        owner uuid
+      );
+
+      alter table storage.objects enable row level security;
+
+      create or replace function storage.foldername(name text)
+      returns text[]
+      language sql
+      immutable
+      as $$
+        select case
+          when array_length(regexp_split_to_array(name, '/'), 1) > 1
+          then (regexp_split_to_array(name, '/'))[1:array_length(regexp_split_to_array(name, '/'), 1) - 1]
+          else array[]::text[]
+        end;
+      $$;
+
+      grant usage on schema public, auth, storage to authenticated, service_role;
+      grant select on storage.buckets to authenticated;
+      grant select, insert, update, delete on storage.objects to authenticated;
+      grant execute on all functions in schema auth to authenticated;
+      grant execute on all functions in schema storage to authenticated;
+
+      create table if not exists public._exportleak_migrations (
+        name text primary key,
+        applied_at timestamptz not null default now()
+      );
+    `);
+  }
 
   const migrationsDir = path.resolve(process.cwd(), "supabase/migrations");
   const files = fs
@@ -162,9 +187,16 @@ async function createAndMigratePglite(): Promise<PGlite> {
     .filter((f) => f.endsWith(".sql"))
     .sort();
 
+  const appliedRows = isInitialized
+    ? await db.query<{ name: string }>("select name from public._exportleak_migrations")
+    : { rows: [] };
+  const appliedSet = new Set(appliedRows.rows.map((r) => r.name));
+
   for (const file of files) {
+    if (appliedSet.has(file)) continue;
     const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
     await db.exec(sql);
+    await db.query("insert into public._exportleak_migrations (name) values ($1)", [file]);
   }
 
   await db.exec(`

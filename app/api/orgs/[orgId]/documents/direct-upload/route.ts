@@ -3,6 +3,7 @@ import { ForbiddenError, NotFoundError, toErrorResponse, ValidationError } from 
 import { requireOrgAccess } from "@/lib/auth/org-access";
 import { isPgliteTestAdapterEnabled } from "@/lib/supabase/config";
 import { MAX_DOCUMENT_BYTES } from "@/lib/documents/file-security";
+import { enforceRateLimit } from "@/lib/rate-limit/memory-rate-limiter";
 import {
   assertValidStoragePath,
   verifyLocalUploadToken,
@@ -11,6 +12,11 @@ import {
 
 export async function PUT(request: NextRequest, context: { params: Promise<{ orgId: string }> }) {
   try {
+    if (!process.env.VITEST) {
+      const rateCheck = enforceRateLimit(request, "documents_direct_upload", "UPLOADS");
+      if (!rateCheck.allowed) return rateCheck.response;
+    }
+
     if (!isPgliteTestAdapterEnabled()) {
       throw new NotFoundError("Direct local upload endpoint is disabled.");
     }

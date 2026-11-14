@@ -1,3 +1,4 @@
+import { cache } from "react";
 import crypto from "node:crypto";
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/auth/errors";
 import { hasMinRole, requireOrgAccess, type AuthenticatedUser } from "@/lib/auth/org-access";
@@ -64,7 +65,9 @@ function hashToken(rawToken: string): string {
   return crypto.createHash("sha256").update(rawToken).digest("hex");
 }
 
-export async function listUserOrganizations(userId: string): Promise<UserOrganizationSummary[]> {
+export const listUserOrganizations = cache(async function listUserOrganizations(
+  userId: string
+): Promise<UserOrganizationSummary[]> {
   if (isPgliteTestAdapterEnabled()) {
     const { asPgliteUser } = await import("@/lib/auth/pglite-adapter");
     return asPgliteUser(userId, async (tx) => {
@@ -116,7 +119,7 @@ export async function listUserOrganizations(userId: string): Promise<UserOrganiz
       trialEndsAt: org?.trial_ends_at ?? null,
     };
   });
-}
+});
 
 export async function createOrganization(params: {
   user: AuthenticatedUser;
@@ -206,7 +209,9 @@ export async function createOrganization(params: {
   };
 }
 
-export async function listIecProfilesWithAlerts(orgId: string): Promise<IecWithAlertCount[]> {
+export const listIecProfilesWithAlerts = cache(async function listIecProfilesWithAlerts(
+  orgId: string
+): Promise<IecWithAlertCount[]> {
   const access = await requireOrgAccess(orgId, "viewer");
 
   if (isPgliteTestAdapterEnabled()) {
@@ -289,7 +294,7 @@ export async function listIecProfilesWithAlerts(orgId: string): Promise<IecWithA
     isDemo: p.is_demo,
     openAlertsCount: counts.get(p.id) ?? 0,
   }));
-}
+});
 
 export async function createIecProfile(params: {
   orgId: string;

@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
-import { PAGE_VARIANTS, useMotionEnabled } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export function PageTransition({
@@ -12,21 +10,9 @@ export function PageTransition({
   children: React.ReactNode;
   className?: string;
 }) {
-  const motionEnabled = useMotionEnabled();
-
-  if (!motionEnabled) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
-    <motion.div
-      variants={PAGE_VARIANTS}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className={cn("w-full", className)}
-    >
+    <div className={cn("w-full animate-in fade-in-50 duration-150", className)}>
       {children}
-    </motion.div>
+    </div>
   );
 }

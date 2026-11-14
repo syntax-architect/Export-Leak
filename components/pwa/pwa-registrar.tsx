@@ -7,7 +7,27 @@ export function PwaRegistrar() {
   const { toast } = useToast();
 
   React.useEffect(() => {
-    // 1. Register Service Worker
+    // In development mode, NEVER register service worker, and proactively unregister any
+    // existing workers and wipe cache storage to prevent stale Turbopack chunk collisions and HMR rebuild loops.
+    if (process.env.NODE_ENV !== "production") {
+      if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
+        if ("caches" in window) {
+          caches.keys().then((names) => {
+            for (const name of names) {
+              caches.delete(name);
+            }
+          });
+        }
+      }
+      return;
+    }
+
+    // 1. Register Service Worker in production only
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")

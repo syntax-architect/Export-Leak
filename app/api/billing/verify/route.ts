@@ -1,9 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { BadRequestError, toErrorResponse } from "@/lib/auth/errors";
 import { verifySubscriptionPaymentSignature } from "@/lib/billing/razorpay";
+import { enforceRateLimit } from "@/lib/rate-limit/memory-rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.VITEST) {
+      const rateCheck = enforceRateLimit(request, "billing_verify", "MUTATIONS");
+      if (!rateCheck.allowed) return rateCheck.response;
+    }
+
     const body = (await request.json().catch(() => ({}))) as {
       razorpay_payment_id?: string;
       razorpay_subscription_id?: string;

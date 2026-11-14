@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { toErrorResponse } from "@/lib/auth/errors";
 import { ACTIVE_IEC_COOKIE, ACTIVE_ORG_COOKIE } from "@/lib/auth/org-access";
+import { enforceRateLimit } from "@/lib/rate-limit/memory-rate-limiter";
 import { isForceLoginAllowed } from "@/lib/supabase/config";
 
 const forceLoginSchema = z.object({
@@ -36,6 +37,13 @@ async function ensureSeedDataLoaded() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!process.env.VITEST) {
+    const rateCheck = enforceRateLimit(request, "auth_force_login", "AUTH");
+    if (!rateCheck.allowed) {
+      return rateCheck.response;
+    }
+  }
+
   if (!isForceLoginAllowed()) {
     return NextResponse.json(
       {

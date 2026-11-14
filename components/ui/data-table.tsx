@@ -1,9 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { LIST_CONTAINER_VARIANTS, LIST_ITEM_VARIANTS, useMotionEnabled } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export interface DataTableColumn<T> {
@@ -37,11 +35,8 @@ export function DataTable<T>({
   emptyState,
   onRowClick,
   caption,
-  animated = true,
   className,
 }: DataTableProps<T>) {
-  const motionEnabled = useMotionEnabled();
-
   if (data.length === 0 && emptyState) {
     return <>{emptyState}</>;
   }
@@ -72,95 +67,46 @@ export function DataTable<T>({
               ))}
             </tr>
           </thead>
-          {animated && motionEnabled ? (
-            <motion.tbody
-              variants={LIST_CONTAINER_VARIANTS}
-              initial="initial"
-              animate="animate"
-              className="divide-y divide-border-subtle"
-            >
-              {data.map((row) => {
-                const rowKey = keyExtractor(row);
-                return (
-                  <motion.tr
-                    key={rowKey}
-                    variants={LIST_ITEM_VARIANTS}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
-                    tabIndex={onRowClick ? 0 : undefined}
-                    onKeyDown={
-                      onRowClick
-                        ? (e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              onRowClick(row);
-                            }
+          <tbody className="divide-y divide-border-subtle">
+            {data.map((row) => {
+              const rowKey = keyExtractor(row);
+              return (
+                <tr
+                  key={rowKey}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onRowClick(row);
                           }
-                        : undefined
-                    }
-                    className={cn(
-                      "transition-colors",
-                      onRowClick &&
-                        "cursor-pointer hover:bg-surface-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                    )}
-                  >
-                    {columns.map((column) => (
-                      <td
-                        key={column.id}
-                        className={cn(
-                          "px-4 py-3.5 align-middle text-text",
-                          column.align === "right" ? "text-right" : "text-left",
-                          column.className
-                        )}
-                      >
-                        {column.cell(row)}
-                      </td>
-                    ))}
-                  </motion.tr>
-                );
-              })}
-            </motion.tbody>
-          ) : (
-            <tbody className="divide-y divide-border-subtle">
-              {data.map((row) => {
-                const rowKey = keyExtractor(row);
-                return (
-                  <tr
-                    key={rowKey}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
-                    tabIndex={onRowClick ? 0 : undefined}
-                    onKeyDown={
-                      onRowClick
-                        ? (e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              onRowClick(row);
-                            }
-                          }
-                        : undefined
-                    }
-                    className={cn(
-                      "transition-colors",
-                      onRowClick &&
-                        "cursor-pointer hover:bg-surface-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                    )}
-                  >
-                    {columns.map((column) => (
-                      <td
-                        key={column.id}
-                        className={cn(
-                          "px-4 py-3.5 align-middle text-text",
-                          column.align === "right" ? "text-right" : "text-left",
-                          column.className
-                        )}
-                      >
-                        {column.cell(row)}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          )}
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    "transition-colors",
+                    onRowClick &&
+                      "cursor-pointer hover:bg-surface-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  )}
+                >
+                  {columns.map((column) => (
+                    <td
+                      key={column.id}
+                      className={cn(
+                        "px-4 py-3.5 align-middle text-text",
+                        column.align === "right" ? "text-right" : "text-left",
+                        column.className
+                      )}
+                    >
+                      {column.cell(row)}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
       </div>
 

@@ -4,9 +4,15 @@ import { PLANS, type PlanKey } from "@/config/plans";
 import { BadRequestError, toErrorResponse } from "@/lib/auth/errors";
 import { ACTIVE_ORG_COOKIE, requireOrgAccess } from "@/lib/auth/org-access";
 import { createOrganizationSubscription } from "@/lib/billing/razorpay";
+import { enforceRateLimit } from "@/lib/rate-limit/memory-rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.VITEST) {
+      const rateCheck = enforceRateLimit(request, "billing_subscribe", "MUTATIONS");
+      if (!rateCheck.allowed) return rateCheck.response;
+    }
+
     const body = (await request.json().catch(() => ({}))) as {
       planKey?: string;
       orgId?: string;

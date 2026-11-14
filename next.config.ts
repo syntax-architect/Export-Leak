@@ -41,7 +41,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["exceljs"],
+  serverExternalPackages: ["@electric-sql/pglite", "exceljs", "unpdf", "pdf-lib"],
   async headers() {
     return [
       {
