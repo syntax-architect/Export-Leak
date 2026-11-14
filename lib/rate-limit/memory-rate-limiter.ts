@@ -43,12 +43,7 @@ export interface RateLimitPreset {
   message?: string;
 }
 
-export type RateLimitPresetKey =
-  | "AUTH"
-  | "UPLOADS"
-  | "MUTATIONS"
-  | "PUBLIC_TOOLS"
-  | "GENERAL_API";
+export type RateLimitPresetKey = "AUTH" | "UPLOADS" | "MUTATIONS" | "PUBLIC_TOOLS" | "GENERAL_API";
 
 export const RATE_LIMIT_PRESETS: Record<RateLimitPresetKey, RateLimitPreset> = {
   AUTH: {
@@ -59,7 +54,8 @@ export const RATE_LIMIT_PRESETS: Record<RateLimitPresetKey, RateLimitPreset> = {
   UPLOADS: {
     maxRequests: 30,
     windowSeconds: 60, // 30 uploads per minute
-    message: "Upload rate limit reached (30 requests/minute). Please wait a moment before uploading more files.",
+    message:
+      "Upload rate limit reached (30 requests/minute). Please wait a moment before uploading more files.",
   },
   MUTATIONS: {
     maxRequests: 60,
@@ -69,7 +65,8 @@ export const RATE_LIMIT_PRESETS: Record<RateLimitPresetKey, RateLimitPreset> = {
   PUBLIC_TOOLS: {
     maxRequests: 60,
     windowSeconds: 3600, // 60 requests per hour
-    message: "You have reached the free usage limit for this tool. Please wait or create a free account to continue without interruption.",
+    message:
+      "You have reached the free usage limit for this tool. Please wait or create a free account to continue without interruption.",
   },
   GENERAL_API: {
     maxRequests: 120,
@@ -115,9 +112,9 @@ export function checkRateLimit(
     const resetSeconds = Math.max(1, Math.ceil(resetMs / 1000));
     const resetMinutes = Math.ceil(resetSeconds / 60);
 
-    const defaultMsg = `You have reached the limit (${maxRequests} requests per ${
+    const defaultMsg = `You have reached the free usage limit (${maxRequests} requests per ${
       windowSeconds >= 3600 ? `${Math.round(windowSeconds / 3600)} hour` : `${windowSeconds}s`
-    }). Please wait ${resetMinutes} minute${resetMinutes === 1 ? "" : "s"} or continue later.`;
+    }). Please wait ${resetMinutes} minute${resetMinutes === 1 ? "" : "s"} or create a free account to continue without interruption.`;
 
     return {
       allowed: false,

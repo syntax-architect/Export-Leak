@@ -50,18 +50,21 @@ A comprehensive automated and manual security review was executed across all rou
 An adversarial penetration test and hostile payments audit was executed simulating an attacker attempting all 7 vectors:
 
 ### Vector 1: Cross-Tenant Data Breach
+
 - **Finding 1.1 (Severity: HIGH)**: `app/api/billing/receipts/[eventId]/route.ts` allowed any authenticated user to view receipts belonging to another organization if the `eventId` was known or enumerated.
-  - *Reproduction*: User A in Org A requested `GET /api/billing/receipts/[eventId_of_Org_B]`. Returned 200 with Org B's payment data.
-  - *Fix*: Added `await requireOrgAccess(eventRow.org_id, "viewer")` and explicit 403 Forbidden handling for non-members.
+  - _Reproduction_: User A in Org A requested `GET /api/billing/receipts/[eventId_of_Org_B]`. Returned 200 with Org B's payment data.
+  - _Fix_: Added `await requireOrgAccess(eventRow.org_id, "viewer")` and explicit 403 Forbidden handling for non-members.
 - **Finding 1.2 (Severity: MEDIUM)**: `app/api/orgs/[orgId]/reports/share/route.ts` allowed passing an `iecId` belonging to another organization.
-  - *Reproduction*: User in Org A created a shared report specifying `iecId` of Org B.
-  - *Fix*: Added database query validating that `iec_profiles` contains an active profile with `id = iecId AND org_id = orgId`; throws `ForbiddenError` (403) on mismatch.
+  - _Reproduction_: User in Org A created a shared report specifying `iecId` of Org B.
+  - _Fix_: Added database query validating that `iec_profiles` contains an active profile with `id = iecId AND org_id = orgId`; throws `ForbiddenError` (403) on mismatch.
 
 ### Vector 2: Unauthenticated Plan Activation
+
 - **Audited**: `/api/billing/verify` and client callbacks.
 - **Result (PASS)**: Verified that signature verification only updates UI state; the webhook processor remains the sole source of truth for plan activation. Direct mutation endpoints are inaccessible without authenticated owner/admin role.
 
 ### Vector 3: Webhook Forgery & Replay
+
 - **Audited**: HMAC-SHA256 signature verification, timing safe comparison, unique constraint on `provider_event_id`, and status ranking.
 - **Result (PASS)**:
   - Missing signature: 400 Bad Request.
@@ -70,6 +73,7 @@ An adversarial penetration test and hostile payments audit was executed simulati
   - Out-of-order sequence: Lower-ranked event (e.g. `subscription.authenticated`) arriving after `subscription.charged` does not downgrade subscription.
 
 ### Vector 4: Direct API Plan Limit Bypass
+
 - **Audited**: Direct API invocation with `curl`/fetch while on Free plan.
 - **Result (PASS)**:
   - `POST /api/orgs/[orgId]/ebrc` (action: "generate") -> 402 `PLAN_LIMIT_EXCEEDED`.
@@ -77,24 +81,28 @@ An adversarial penetration test and hostile payments audit was executed simulati
   - `POST /api/orgs/[orgId]/documents/upload-url` (exceeding 5 bills/month) -> 402 `PLAN_LIMIT_EXCEEDED`.
 
 ### Vector 5: Malicious File Upload Attacks
+
 - **Finding 5.1 (Severity: MEDIUM)**: Public free tools (`/api/public/tools/extract-shipping-bill` and `/api/public/tools/validate-ebrc`) did not validate magic byte signatures before parsing.
-  - *Fix*: Added `validateMagicBytes(bytes, "pdf")` and `validateMagicBytes(bytes, "xlsx")` early checks, rejecting Windows PE ("MZ"), Linux ELF, and shell scripts with 400 Bad Request.
+  - _Fix_: Added `validateMagicBytes(bytes, "pdf")` and `validateMagicBytes(bytes, "xlsx")` early checks, rejecting Windows PE ("MZ"), Linux ELF, and shell scripts with 400 Bad Request.
 - **Audited**: Path traversal in storage paths (`../../evil.pdf`).
 - **Result (PASS)**: Strictly rejected by `STORAGE_PATH_REGEX` (`assertValidStoragePath`).
 
 ### Vector 6: Secret Leaks
+
 - **Audited**: Client bundles in `.next/static` and source imports.
 - **Result (PASS)**: Zero occurrences of `RAZORPAY_KEY_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, or `CRON_SECRET` in any client-accessible files.
 
 ### Vector 7: Double Billing Prevention on Plan Upgrade
+
 - **Finding 7.1 (Severity: HIGH)**: When an organization upgraded plans (e.g. `exporter_monthly` to `consultant_annual`), `webhook-processor.ts` activated the new subscription without cancelling the prior subscription, causing potential concurrent recurring billing on Razorpay.
-  - *Fix*: In `lib/billing/webhook-processor.ts`, when `subscription.activated` fires, all other active/pending subscriptions for that `org_id` are automatically marked `'cancelled'` in the database and cancelled on the gateway via `cancelRazorpaySubscriptionOnGateway(prior.razorpay_subscription_id)`.
+  - _Fix_: In `lib/billing/webhook-processor.ts`, when `subscription.activated` fires, all other active/pending subscriptions for that `org_id` are automatically marked `'cancelled'` in the database and cancelled on the gateway via `cancelRazorpaySubscriptionOnGateway(prior.razorpay_subscription_id)`.
 
 ---
 
 ## 5. Automated Regression Test Suite
 
 All 15 adversarial test cases are automated in `lib/security/__tests__/adversarial-security.test.ts` (15/15 passing):
+
 - `ATTACK: User A attempts to view Org B's payment receipt via /api/billing/receipts/[eventId]` (PASS)
 - `ATTACK: User A attempts to create a shared report with Org B's IEC identifier` (PASS)
 - `ATTACK: Attacker calls /api/billing/verify directly hoping to activate a paid plan` (PASS)

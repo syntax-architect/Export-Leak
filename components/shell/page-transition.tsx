@@ -11,8 +11,6 @@ export function PageTransition({
   className?: string;
 }) {
   return (
-    <div className={cn("w-full animate-in fade-in-50 duration-150", className)}>
-      {children}
-    </div>
+    <div className={cn("w-full animate-in fade-in-50 duration-150", className)}>{children}</div>
   );
 }

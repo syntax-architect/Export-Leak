@@ -34,39 +34,41 @@ export function hasMinRole(actual: MembershipRole, required: MembershipRole): bo
 
 const uuidSchema = z.string().uuid();
 
-export const getAuthenticatedUser = cache(async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
-  const cookieStore = await cookies();
-  const { TEST_SESSION_COOKIE, verifyTestSession } = await import("@/lib/auth/pglite-adapter");
-  const testCookie = cookieStore.get(TEST_SESSION_COOKIE)?.value;
+export const getAuthenticatedUser = cache(
+  async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+    const cookieStore = await cookies();
+    const { TEST_SESSION_COOKIE, verifyTestSession } = await import("@/lib/auth/pglite-adapter");
+    const testCookie = cookieStore.get(TEST_SESSION_COOKIE)?.value;
 
-  if (testCookie && (isPgliteTestAdapterEnabled() || process.env.NODE_ENV !== "production")) {
-    const session = verifyTestSession(testCookie);
-    if (session) {
-      return {
-        id: session.id,
-        email: session.email,
-        isPlatformAdmin: session.isPlatformAdmin,
-      };
+    if (testCookie && (isPgliteTestAdapterEnabled() || process.env.NODE_ENV !== "production")) {
+      const session = verifyTestSession(testCookie);
+      if (session) {
+        return {
+          id: session.id,
+          email: session.email,
+          isPlatformAdmin: session.isPlatformAdmin,
+        };
+      }
     }
+
+    if (isPgliteTestAdapterEnabled()) {
+      return null;
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return null;
+    const appMetadata = user.app_metadata as Record<string, unknown> | undefined;
+    return {
+      id: user.id,
+      email: user.email ?? null,
+      isPlatformAdmin: appMetadata?.is_platform_admin === true,
+    };
   }
-
-  if (isPgliteTestAdapterEnabled()) {
-    return null;
-  }
-
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-  const appMetadata = user.app_metadata as Record<string, unknown> | undefined;
-  return {
-    id: user.id,
-    email: user.email ?? null,
-    isPlatformAdmin: appMetadata?.is_platform_admin === true,
-  };
-});
+);
 
 export function assertPlatformAdminAccess(user: AuthenticatedUser | null): AuthenticatedUser {
   if (!user) {

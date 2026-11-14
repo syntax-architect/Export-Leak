@@ -2,7 +2,8 @@ import * as React from "react";
 import { CheckCircle2, Info, Lightbulb, SearchX, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type EmptyStateVariant = "default" | "no-results" | "filter" | "success" | "warning" | "compact";
+export type EmptyStateVariant =
+  "default" | "no-results" | "filter" | "success" | "warning" | "compact";
 
 export interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -111,7 +112,7 @@ export function EmptyState({
         </div>
       ) : null}
 
-      {(resolvedPrimaryAction || secondaryAction) ? (
+      {resolvedPrimaryAction || secondaryAction ? (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
           {resolvedPrimaryAction}
           {secondaryAction}

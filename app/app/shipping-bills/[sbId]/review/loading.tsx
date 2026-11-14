@@ -17,7 +17,10 @@ export default function ShippingBillReviewLoading() {
             <div className="h-5 w-36 animate-pulse rounded bg-surface-muted" />
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 w-full animate-pulse rounded-[var(--radius-sm)] bg-surface-muted/60" />
+                <div
+                  key={i}
+                  className="h-12 w-full animate-pulse rounded-[var(--radius-sm)] bg-surface-muted/60"
+                />
               ))}
             </div>
           </CardContent>

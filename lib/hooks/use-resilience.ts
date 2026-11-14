@@ -63,7 +63,10 @@ export function useThrottledCallback<TArgs extends readonly unknown[]>(
 ): (...args: TArgs) => void {
   const lastCalledRef = React.useRef(0);
   const cbRef = React.useRef(cb);
-  cbRef.current = cb;
+
+  React.useEffect(() => {
+    cbRef.current = cb;
+  }, [cb]);
 
   return React.useCallback(
     (...args: TArgs) => {
@@ -114,4 +117,3 @@ export function useMonotonicFlight<TArgs extends readonly unknown[], TResult>(
 
   return [trigger, { isLoading }];
 }
-

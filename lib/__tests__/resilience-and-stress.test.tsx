@@ -25,9 +25,7 @@ describe("Resilience & Stress Protection Suite", () => {
         return "done";
       });
 
-      const { result } = renderHook(() =>
-        useSingleFlight(mockAsyncWork, { cooldownMs: 0 })
-      );
+      const { result } = renderHook(() => useSingleFlight(mockAsyncWork, { cooldownMs: 0 }));
 
       // Rapidly fire 25 times concurrently
       const promises: Promise<string | undefined>[] = [];
@@ -51,9 +49,7 @@ describe("Resilience & Stress Protection Suite", () => {
 
     it("respects anti-double-tap cooldown period", async () => {
       const mockFn = vi.fn(async () => "ok");
-      const { result } = renderHook(() =>
-        useSingleFlight(mockFn, { cooldownMs: 200 })
-      );
+      const { result } = renderHook(() => useSingleFlight(mockFn, { cooldownMs: 200 }));
 
       await act(async () => {
         await result.current[0]();
@@ -112,9 +108,7 @@ describe("Resilience & Stress Protection Suite", () => {
         return fastPromise;
       });
 
-      const { result } = renderHook(() =>
-        useMonotonicFlight(asyncWorker, onData)
-      );
+      const { result } = renderHook(() => useMonotonicFlight(asyncWorker, onData));
 
       // Dispatch request 1 (slow)
       act(() => {
@@ -170,10 +164,7 @@ describe("Resilience & Stress Protection Suite", () => {
         <EmptyState
           title="No Shipping Bills found"
           description="Upload your ICEGATE EDI files to begin."
-          tips={[
-            "Accepts EDI 1.5 PDFs",
-            "Auto-calculates RoDTEP & Drawback",
-          ]}
+          tips={["Accepts EDI 1.5 PDFs", "Auto-calculates RoDTEP & Drawback"]}
           primaryAction={<Button>Upload now</Button>}
           secondaryAction={<Button variant="secondary">Learn more</Button>}
           footerNotice="Files are kept in-memory"
@@ -198,9 +189,7 @@ describe("Resilience & Stress Protection Suite", () => {
           variant="filter"
           title="No items match filter"
           description="Try adjusting your date range."
-          primaryAction={
-            <Button onClick={onReset}>Clear filters</Button>
-          }
+          primaryAction={<Button onClick={onReset}>Clear filters</Button>}
         />
       );
 

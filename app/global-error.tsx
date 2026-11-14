@@ -29,7 +29,9 @@ export default function GlobalError({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">System Encountered an Issue</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              System Encountered an Issue
+            </h1>
             <p className="text-sm text-neutral-400 leading-relaxed">
               We experienced an unexpected application error while loading the root view. Your data
               and export files remain safe and protected.

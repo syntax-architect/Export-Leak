@@ -1130,7 +1130,9 @@ export function IncentivesWorkspace({
                         type="button"
                         variant="primary"
                         onClick={() => {
-                          const input = document.querySelector<HTMLInputElement>("input[placeholder*='e.g. 0510']");
+                          const input = document.querySelector<HTMLInputElement>(
+                            "input[placeholder*='e.g. 0510']"
+                          );
                           input?.focus();
                         }}
                       >

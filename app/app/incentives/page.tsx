@@ -19,9 +19,7 @@ export default async function IncentivesPage() {
   const activeOrgId = cookieStore.get(ACTIVE_ORG_COOKIE)?.value;
   const requestedIecId = cookieStore.get(ACTIVE_IEC_COOKIE)?.value ?? undefined;
 
-  const [organizations] = await Promise.all([
-    listUserOrganizations(user.id),
-  ]);
+  const [organizations] = await Promise.all([listUserOrganizations(user.id)]);
   const activeOrg = organizations.find((o) => o.orgId === activeOrgId) ?? organizations[0];
   if (!activeOrg) redirect("/onboarding");
 

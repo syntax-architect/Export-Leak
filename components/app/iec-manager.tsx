@@ -203,7 +203,9 @@ export function IecManager({ orgId, orgType, role, initialIecs, usageSnapshot }:
                   type="button"
                   variant="primary"
                   onClick={() => {
-                    const input = document.querySelector<HTMLInputElement>("input[placeholder*='0500']");
+                    const input = document.querySelector<HTMLInputElement>(
+                      "input[placeholder*='0500']"
+                    );
                     input?.focus();
                   }}
                 >

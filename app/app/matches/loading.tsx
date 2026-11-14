@@ -2,7 +2,11 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function MatchesLoading() {
   return (
-    <div className="flex flex-col gap-5" aria-busy="true" aria-label="Loading IRM matching workspace">
+    <div
+      className="flex flex-col gap-5"
+      aria-busy="true"
+      aria-label="Loading IRM matching workspace"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-2">
           <div className="h-6 w-48 animate-pulse rounded bg-surface-muted" />

@@ -83,12 +83,12 @@ export function AppShell({
   const router = useRouter();
   const [moreOpen, setMoreOpen] = React.useState(false);
   const [navigatingId, setNavigatingId] = React.useState<string | null>(null);
-  const lastNavTapRef = React.useRef<{ id: string; time: number }>({ id: "", time: 0 });
-
-  // Clear navigating state when activeNavId updates
-  React.useEffect(() => {
+  const [prevActiveNavId, setPrevActiveNavId] = React.useState(activeNavId);
+  if (prevActiveNavId !== activeNavId) {
+    setPrevActiveNavId(activeNavId);
     setNavigatingId(null);
-  }, [activeNavId]);
+  }
+  const lastNavTapRef = React.useRef<{ id: string; time: number }>({ id: "", time: 0 });
 
   const handleNavClick = React.useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, item: AppNavItem) => {
@@ -170,7 +170,11 @@ export function AppShell({
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="shrink-0" aria-hidden="true">
-                    {isNavigating ? <Loader2 className="h-5 w-5 animate-spin text-accent" /> : item.icon}
+                    {isNavigating ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                    ) : (
+                      item.icon
+                    )}
                   </span>
                   <span className="truncate">{item.label}</span>
                 </span>
@@ -382,7 +386,11 @@ export function AppShell({
                 )}
               >
                 <span className="relative" aria-hidden="true">
-                  {isNavigating ? <Loader2 className="h-5 w-5 animate-spin text-accent" /> : item.icon}
+                  {isNavigating ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                  ) : (
+                    item.icon
+                  )}
                   {typeof item.badgeCount === "number" && item.badgeCount > 0 ? (
                     <span className="absolute -right-2 -top-1 h-2 w-2 rounded-full bg-warning" />
                   ) : null}
@@ -440,7 +448,11 @@ export function AppShell({
                       >
                         <span className="flex items-center gap-3">
                           <span aria-hidden="true">
-                            {isNavigating ? <Loader2 className="h-5 w-5 animate-spin text-accent" /> : item.icon}
+                            {isNavigating ? (
+                              <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                            ) : (
+                              item.icon
+                            )}
                           </span>
                           <span>{item.label}</span>
                         </span>

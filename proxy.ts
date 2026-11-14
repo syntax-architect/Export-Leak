@@ -17,8 +17,15 @@ function applySecurityAndCacheHeaders(response: NextResponse, pathname: string):
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  if (pathname.startsWith("/app") || pathname.startsWith("/onboarding") || pathname.startsWith("/api/")) {
-    response.headers.set("Cache-Control", "private, no-cache, no-store, max-age=0, must-revalidate");
+  if (
+    pathname.startsWith("/app") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/api/")
+  ) {
+    response.headers.set(
+      "Cache-Control",
+      "private, no-cache, no-store, max-age=0, must-revalidate"
+    );
     response.headers.set("Pragma", "no-cache");
   }
 

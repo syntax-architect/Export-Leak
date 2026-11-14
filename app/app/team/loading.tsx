@@ -1,5 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
-
 export default function TeamLoading() {
   return (
     <div className="flex flex-col gap-6" aria-busy="true" aria-label="Loading Team">
@@ -30,4 +28,3 @@ export default function TeamLoading() {
     </div>
   );
 }
-
