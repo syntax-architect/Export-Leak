@@ -194,16 +194,48 @@ export function ShippingBillsList({
         mobileTitle={(row) => `SB #${row.sbNumber} (${row.portCode})`}
         mobileSubtitle={(row) => `${row.buyerName ?? "Buyer missing"} • ${row.invoiceNo ?? ""}`}
         emptyState={
-          <EmptyState
-            icon={<FileCheck2 className="h-6 w-6" aria-hidden="true" />}
-            title="No Shipping Bills found"
-            description="Upload Shipping Bill PDFs in Documents to extract fields, verify low-confidence items, and unlock calculations."
-            action={
-              <Button asChild variant="primary">
-                <Link href="/app/documents">Go to Documents</Link>
-              </Button>
-            }
-          />
+          initialRows.length === 0 ? (
+            <EmptyState
+              icon={<FileCheck2 className="h-7 w-7 text-accent" aria-hidden="true" />}
+              title="No Shipping Bills uploaded yet"
+              description="Upload your ICEGATE Shipping Bill PDFs to automatically extract invoice line items, calculate RoDTEP / Drawback incentives, and reconcile bank inward remittances."
+              tips={[
+                "Supports standard ICEGATE EDI Shipping Bill PDFs (EDI 1.5, single & multi-item)",
+                "Automatically verifies Port Code, LEO Date, and FOB values for government audit readiness",
+                "Client-side verified & zero password or DSC requirement guaranteed",
+              ]}
+              primaryAction={
+                <Button asChild variant="primary">
+                  <Link href="/app/documents">Upload Shipping Bills</Link>
+                </Button>
+              }
+              secondaryAction={
+                <Button asChild variant="secondary">
+                  <Link href="/tools/shipping-bill-extractor">Try Web Extractor</Link>
+                </Button>
+              }
+              footerNotice="Uploaded documents remain strictly isolated to your organization"
+            />
+          ) : (
+            <EmptyState
+              variant="filter"
+              title={
+                filter === "needs_review"
+                  ? "All Shipping Bills verified!"
+                  : "No Shipping Bills match this filter"
+              }
+              description={
+                filter === "needs_review"
+                  ? "No shipping bills currently require manual field review. All items are verified or ready for matching."
+                  : `There are no shipping bills currently marked as '${filter}'.`
+              }
+              primaryAction={
+                <Button type="button" variant="primary" onClick={() => setFilter("all")}>
+                  Show all {initialRows.length} Shipping Bills
+                </Button>
+              }
+            />
+          )
         }
       />
     </div>

@@ -31,7 +31,7 @@ describe("Industry-standard rate limiting system", () => {
     expect(r4.allowed).toBe(false);
     expect(r4.remaining).toBe(0);
     expect(r4.resetSeconds).toBeGreaterThan(0);
-    expect(r4.friendlyMessage).toContain("reached the limit");
+    expect(r4.friendlyMessage).toContain("reached the free usage limit");
   });
 
   it("produces standard IETF, legacy X-, and Retry-After headers", () => {

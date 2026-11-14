@@ -1066,11 +1066,59 @@ export function DocumentsManager({
 
       {/* Persisted Documents List */}
       {documents.length === 0 ? (
-        <EmptyState
-          icon={<FileText className="h-6 w-6" aria-hidden="true" />}
-          title="No matching documents"
-          description="Uploaded Shipping Bills, IRMs, and scrolls will appear here with live parsing status."
-        />
+        initialDocuments.length === 0 ? (
+          <EmptyState
+            icon={<FileText className="h-7 w-7 text-accent" aria-hidden="true" />}
+            title="No export documents uploaded yet"
+            description="Drag and drop your ICEGATE Shipping Bill PDFs or Bank IRM Excel files into the upload zone above to begin automated field extraction and ledger tracking."
+            tips={[
+              "Accepted file formats: ICEGATE Shipping Bill PDFs, Bank Inward Remittance (.xlsx / .csv), and customs scrolls",
+              "Never asks for digital signatures (DSC), ICEGATE passwords, or bank logins",
+              "Files are encrypted at rest with AES-256 and subject to strict tenant isolation",
+            ]}
+            primaryAction={
+              canWrite ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => {
+                    const input = document.querySelector<HTMLInputElement>("input[type='file']");
+                    input?.click();
+                  }}
+                >
+                  <Upload className="h-4 w-4" aria-hidden="true" />
+                  <span>Choose files to upload</span>
+                </Button>
+              ) : undefined
+            }
+            secondaryAction={
+              <Button asChild variant="secondary">
+                <Link href="/privacy">Data Protection Guarantee</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState
+            variant="filter"
+            title="No matching documents found"
+            description={`No uploaded files match query '${searchQuery}'${kindFilter !== "all" ? ` under ${kindFilter}` : ""}${statusFilter !== "all" ? ` with status ${statusFilter}` : ""}.`}
+            primaryAction={
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => {
+                  setSearchQuery("");
+                  setKindFilter("all");
+                  setStatusFilter("all");
+                  setDateFrom("");
+                  setDateTo("");
+                }}
+              >
+                Clear all filters
+              </Button>
+            }
+          />
+        )
       ) : (
         <Card data-testid="documents-list-card">
           <CardHeader className="pb-2">

@@ -189,9 +189,28 @@ export function IecManager({ orgId, orgType, role, initialIecs, usageSnapshot }:
         caption="Organization IEC profiles"
         emptyState={
           <EmptyState
-            icon={<Building2 className="h-6 w-6" aria-hidden="true" />}
-            title="No IEC profiles yet"
-            description="Add an IEC profile above to start uploading documents."
+            icon={<Building2 className="h-7 w-7 text-accent" aria-hidden="true" />}
+            title="No IEC profiles registered yet"
+            description="Add your 10-digit DGFT Importer-Exporter Code (IEC) to monitor export receivables, RoDTEP incentives, and EDPMS compliance deadlines."
+            tips={[
+              "Requires a 10-character DGFT-issued IEC code and registered entity name",
+              "Exporter plans include 1 primary IEC; Consultant plans unlock multi-client IEC management",
+              "Never asks for DSC USB tokens or ICEGATE credentials",
+            ]}
+            primaryAction={
+              canWrite ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => {
+                    const input = document.querySelector<HTMLInputElement>("input[placeholder*='0500']");
+                    input?.focus();
+                  }}
+                >
+                  <span>Add your first IEC</span>
+                </Button>
+              ) : undefined
+            }
           />
         }
       />

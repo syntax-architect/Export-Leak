@@ -27,7 +27,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --port ${PORT} --hostname 127.0.0.1`,
     url: BASE_URL,
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
       EXPORTLEAK_E2E_ADAPTER: "pglite",

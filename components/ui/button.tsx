@@ -35,6 +35,8 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   loadingText?: string;
+  antiDoubleTap?: boolean;
+  throttleMs?: number;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -46,14 +48,35 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       asChild = false,
       loading = false,
       loadingText,
+      antiDoubleTap = false,
+      throttleMs,
       disabled,
       children,
       type = "button",
+      onClick,
       ...props
     },
     ref
   ) => {
     const isDisabled = Boolean(disabled || loading);
+    const lastClickRef = React.useRef(0);
+
+    const handleClick = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (antiDoubleTap || typeof throttleMs === "number") {
+          const now = Date.now();
+          const wait = throttleMs ?? 350;
+          if (now - lastClickRef.current < wait) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          lastClickRef.current = now;
+        }
+        onClick?.(e);
+      },
+      [antiDoubleTap, throttleMs, onClick]
+    );
 
     if (asChild) {
       return (
@@ -86,6 +109,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-busy={loading || undefined}
         className={cn(buttonVariants({ variant, size, className }))}
+        onClick={handleClick}
         {...props}
       >
         {content}

@@ -631,12 +631,22 @@ export function EbrcWorkspace({ orgId, userRole, initialData }: EbrcWorkspacePro
       {/* Preview Rows or Empty State */}
       {rows.length === 0 ? (
         <EmptyState
-          icon={<FileSpreadsheet className="h-6 w-6" />}
-          title="No confirmed matches in this selection"
-          description="Confirm IRM–Shipping Bill matches first on IRM & Matching, or widen your date/IEC filter."
-          action={
+          icon={<FileSpreadsheet className="h-7 w-7 text-accent" />}
+          title="No confirmed matches ready for eBRC export"
+          description="To generate a DGFT-compliant bulk eBRC upload workbook, first match and confirm allocations between your Shipping Bills and Bank Inward Remittance Messages (IRMs)."
+          tips={[
+            "Allocations must be confirmed in IRM & Matching before appearing in the eBRC export pool",
+            "Auto-validates AD Bank Code, IFSC Code, and realization dates according to DGFT schema",
+            "Eliminates manual ICEGATE copy-paste errors and speeds up CA audit signoff",
+          ]}
+          primaryAction={
             <Button asChild variant="primary">
-              <Link href="/app/matches">Review IRM matches</Link>
+              <Link href="/app/matches">Review IRM Matches</Link>
+            </Button>
+          }
+          secondaryAction={
+            <Button asChild variant="secondary">
+              <Link href="/tools/ebrc-validator">Test Bulk Validator</Link>
             </Button>
           }
         />

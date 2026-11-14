@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
   BadgeIndianRupee,
@@ -607,11 +608,46 @@ export function IncentivesWorkspace({
           </div>
 
           {filteredRows.length === 0 ? (
-            <EmptyState
-              icon={<Calculator className="h-8 w-8" />}
-              title="No incentive comparisons yet"
-              description="Upload a confirmed Shipping Bill and import effective-dated rates, then click Recalculate."
-            />
+            workspace.rows.length === 0 ? (
+              <EmptyState
+                icon={<Calculator className="h-7 w-7 text-accent" />}
+                title="No incentive comparisons yet"
+                description="ExportLeak calculates expected RoDTEP, RoSCTL, and Duty Drawback by cross-referencing your Shipping Bill HS codes against official government rate schedules."
+                tips={[
+                  "Upload Shipping Bill PDFs in Documents to extract claimed schemes and FOB values",
+                  "Rates are calculated based on LEO (Let Export Order) date validity",
+                  "Click 'Recalculate all' to run calculations across all eligible bills",
+                ]}
+                primaryAction={
+                  <Button asChild variant="primary">
+                    <Link href="/app/documents">Upload Shipping Bills</Link>
+                  </Button>
+                }
+                secondaryAction={
+                  <Button asChild variant="secondary">
+                    <Link href="/tools/incentive-calculator">Open Web Calculator</Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <EmptyState
+                variant="filter"
+                title="No incentive claims match filter"
+                description={`No records found matching status '${statusFilter}'${searchQuery ? ` and query '${searchQuery}'` : ""}.`}
+                primaryAction={
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={() => {
+                      setStatusFilter("all");
+                      setSearchQuery("");
+                    }}
+                  >
+                    Reset filters & search
+                  </Button>
+                }
+              />
+            )
           ) : (
             <>
               {/* Mobile card layout (< md) */}
@@ -857,9 +893,26 @@ export function IncentivesWorkspace({
             <CardContent>
               {workspace.credits.length === 0 ? (
                 <EmptyState
-                  icon={<FileSpreadsheet className="h-8 w-8" />}
+                  icon={<FileSpreadsheet className="h-7 w-7 text-accent" />}
                   title="No scroll credits imported yet"
-                  description="Upload a customs scroll export above to compare actual credits against expected incentives."
+                  description="Upload your ICEGATE customs scroll export above to compare actual government disbursements against expected export incentives and discover unpaid claims."
+                  tips={[
+                    "Accepted columns: SB No, SB Date, Scheme (RoDTEP/RoSCTL/Drawback), Scroll No, Scroll Date, Credited Amount",
+                    "Disbursed amounts are matched 1-to-1 against parsed Shipping Bills",
+                    "Flags short disbursements and delayed government scrolls automatically",
+                  ]}
+                  primaryAction={
+                    canWrite ? (
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => document.getElementById("scroll-file-input")?.click()}
+                      >
+                        <Upload className="h-4 w-4" aria-hidden="true" />
+                        <span>Select Scroll File (.csv / .xlsx)</span>
+                      </Button>
+                    ) : undefined
+                  }
                 />
               ) : (
                 <div className="space-y-2">
@@ -1063,9 +1116,29 @@ export function IncentivesWorkspace({
             <CardContent>
               {workspace.scrips.length === 0 ? (
                 <EmptyState
-                  icon={<CalendarClock className="h-8 w-8" />}
-                  title="No scrips recorded"
-                  description="Add e-scrips above to monitor utilisation and expiry deadlines."
+                  icon={<CalendarClock className="h-7 w-7 text-accent" />}
+                  title="No duty credit scrips recorded"
+                  description="Add your electronic duty credit scrips (RoDTEP / RoSCTL) issued by DGFT to monitor 1-year expiry deadlines and record customs utilisation or third-party transfer."
+                  tips={[
+                    "DGFT e-scrips expire exactly 1 year from the date of generation",
+                    "ExportLeak triggers automated alerts 30 days before expiration to prevent forfeiture",
+                    "Record transfers to buyers or utilisation against customs bills of entry",
+                  ]}
+                  primaryAction={
+                    canWrite ? (
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          const input = document.querySelector<HTMLInputElement>("input[placeholder*='e.g. 0510']");
+                          input?.focus();
+                        }}
+                      >
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        <span>Record first Scrip</span>
+                      </Button>
+                    ) : undefined
+                  }
                 />
               ) : (
                 <div className="space-y-2">
@@ -1219,9 +1292,14 @@ export function IncentivesWorkspace({
 
               {workspace.rates.length === 0 ? (
                 <EmptyState
-                  icon={<BadgeIndianRupee className="h-8 w-8" />}
+                  icon={<BadgeIndianRupee className="h-7 w-7 text-accent" />}
                   title="No incentive rates loaded"
-                  description="An admin must import an official rate CSV before expected incentives can be computed."
+                  description="Effective-dated DGFT RoDTEP, RoSCTL, or Drawback rates have not been populated for this environment yet."
+                  tips={[
+                    "DGFT rate schedules are effective-dated based on customs notification dates",
+                    "Cap per unit and percentage rates apply to FOB values",
+                    "Admins can upload official DGFT Appendix 4R / 4T schedule CSVs above",
+                  ]}
                 />
               ) : (
                 <div className="space-y-2">

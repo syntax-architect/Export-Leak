@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
   ArrowLeftRight,
@@ -823,9 +824,19 @@ export function IrmMatchingWorkspace({
         <CardContent>
           {workspace.shippingBills.length === 0 ? (
             <EmptyState
-              icon={<ArrowLeftRight className="h-6 w-6" aria-hidden="true" />}
+              icon={<ArrowLeftRight className="h-7 w-7 text-accent" aria-hidden="true" />}
               title="No Shipping Bills available to match"
-              description="Upload and confirm at least one Shipping Bill PDF first, then import your IRM Excel/CSV statement."
+              description="Upload and confirm at least one Shipping Bill PDF first to extract invoice numbers, buyer names, and FOB values for matching."
+              tips={[
+                "Upload Shipping Bill PDFs in Documents to extract line items",
+                "Once uploaded, the auto-match engine pairs remittances using invoice number & currency",
+                "Foreign exchange amounts are strictly reconciled without cross-currency leakage",
+              ]}
+              primaryAction={
+                <Button asChild variant="primary">
+                  <Link href="/app/documents">Upload Shipping Bills</Link>
+                </Button>
+              }
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -1220,9 +1231,26 @@ export function IrmMatchingWorkspace({
             )}
             emptyState={
               <EmptyState
-                icon={<FileSpreadsheet className="h-6 w-6" aria-hidden="true" />}
-                title="No IRMs imported yet"
-                description="Upload a bank or DGFT EDPMS IRM file above to begin reconciliation."
+                icon={<FileSpreadsheet className="h-7 w-7 text-accent" aria-hidden="true" />}
+                title="No Bank IRMs imported yet"
+                description="Upload an Inward Remittance Message (IRM) Excel or CSV statement from your Authorized Dealer bank or DGFT EDPMS portal to begin matching."
+                tips={[
+                  "Supported banks: HDFC, SBI, ICICI, Axis, HSBC, Kotak, Standard Chartered",
+                  "Auto-extracts IRM Number, AD Code, IFSC, Purpose Code, and Remittance Currency",
+                  "Supports partial multi-bill allocations without rounding discrepancies",
+                ]}
+                primaryAction={
+                  canWrite ? (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      onClick={() => document.getElementById("irm-file-input")?.click()}
+                    >
+                      <Upload className="h-4 w-4" aria-hidden="true" />
+                      <span>Select Bank IRM File</span>
+                    </Button>
+                  ) : undefined
+                }
               />
             }
           />

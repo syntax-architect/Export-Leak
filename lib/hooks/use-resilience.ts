@@ -114,3 +114,4 @@ export function useMonotonicFlight<TArgs extends readonly unknown[], TResult>(
 
   return [trigger, { isLoading }];
 }
+

@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import {
   Bell,
   Building2,
   Check,
   ChevronsUpDown,
+  Loader2,
   LogOut,
   MoreHorizontal,
   ShieldCheck,
@@ -24,6 +26,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { PageTransition } from "@/components/shell/page-transition";
+import { NavigationProgressBar } from "@/components/shell/nav-progress-bar";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +80,47 @@ export function AppShell({
   headerExtra,
   children,
 }: AppShellProps) {
+  const router = useRouter();
   const [moreOpen, setMoreOpen] = React.useState(false);
+  const [navigatingId, setNavigatingId] = React.useState<string | null>(null);
+  const lastNavTapRef = React.useRef<{ id: string; time: number }>({ id: "", time: 0 });
+
+  // Clear navigating state when activeNavId updates
+  React.useEffect(() => {
+    setNavigatingId(null);
+  }, [activeNavId]);
+
+  const handleNavClick = React.useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, item: AppNavItem) => {
+      const now = Date.now();
+      // Rapid-tap & duplicate destination protection
+      if (
+        (lastNavTapRef.current.id === item.id && now - lastNavTapRef.current.time < 350) ||
+        item.id === activeNavId
+      ) {
+        if (item.id === activeNavId) {
+          e.preventDefault();
+        }
+        return;
+      }
+
+      lastNavTapRef.current = { id: item.id, time: now };
+      setNavigatingId(item.id);
+      window.dispatchEvent(new CustomEvent("exportleak:navigation-start", { detail: item.href }));
+    },
+    [activeNavId]
+  );
+
+  const warmRoute = React.useCallback(
+    (href: string) => {
+      try {
+        router.prefetch(href);
+      } catch {
+        // Safe noop
+      }
+    },
+    [router]
+  );
 
   const selectedOrg = orgs.find((o) => o.id === selectedOrgId) ?? orgs[0];
   const primaryMobileItems = navItems.slice(0, 4);
@@ -86,6 +129,7 @@ export function AppShell({
 
   return (
     <div className="flex min-h-dvh w-full bg-bg text-text">
+      <NavigationProgressBar />
       {/* Desktop Sidebar */}
       <aside
         aria-label="Primary sidebar navigation"
@@ -104,21 +148,29 @@ export function AppShell({
         <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Workspace sections">
           {navItems.map((item) => {
             const isActive = item.id === activeNavId;
+            const isNavigating = navigatingId === item.id;
             return (
               <Link
                 key={item.id}
                 href={item.href}
+                prefetch={true}
+                onClick={(e) => handleNavClick(e, item)}
+                onPointerDown={() => warmRoute(item.href)}
+                onTouchStart={() => warmRoute(item.href)}
+                onMouseEnter={() => warmRoute(item.href)}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   isActive
                     ? "bg-primary text-primary-fg shadow-[var(--shadow-sm)]"
-                    : "text-text hover:bg-surface-muted"
+                    : isNavigating
+                      ? "bg-surface-muted text-accent font-semibold"
+                      : "text-text hover:bg-surface-muted"
                 )}
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="shrink-0" aria-hidden="true">
-                    {item.icon}
+                    {isNavigating ? <Loader2 className="h-5 w-5 animate-spin text-accent" /> : item.icon}
                   </span>
                   <span className="truncate">{item.label}</span>
                 </span>
@@ -310,18 +362,27 @@ export function AppShell({
         <div className="grid grid-cols-5">
           {primaryMobileItems.map((item) => {
             const isActive = item.id === activeNavId;
+            const isNavigating = navigatingId === item.id;
             return (
               <Link
                 key={item.id}
                 href={item.href}
+                prefetch={true}
+                onClick={(e) => handleNavClick(e, item)}
+                onPointerDown={() => warmRoute(item.href)}
+                onTouchStart={() => warmRoute(item.href)}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex min-h-12 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
-                  isActive ? "text-primary font-semibold" : "text-text-muted hover:text-text"
+                  "flex min-h-12 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:scale-95",
+                  isActive
+                    ? "text-primary font-semibold"
+                    : isNavigating
+                      ? "text-accent font-semibold"
+                      : "text-text-muted hover:text-text"
                 )}
               >
                 <span className="relative" aria-hidden="true">
-                  {item.icon}
+                  {isNavigating ? <Loader2 className="h-5 w-5 animate-spin text-accent" /> : item.icon}
                   {typeof item.badgeCount === "number" && item.badgeCount > 0 ? (
                     <span className="absolute -right-2 -top-1 h-2 w-2 rounded-full bg-warning" />
                   ) : null}
@@ -356,20 +417,31 @@ export function AppShell({
                 {overflowMobileItems.length > 0 ? (
                   overflowMobileItems.map((item) => {
                     const isActive = item.id === activeNavId;
+                    const isNavigating = navigatingId === item.id;
                     return (
                       <Link
                         key={item.id}
                         href={item.href}
-                        onClick={() => setMoreOpen(false)}
+                        prefetch={true}
+                        onClick={(e) => {
+                          setMoreOpen(false);
+                          handleNavClick(e, item);
+                        }}
+                        onPointerDown={() => warmRoute(item.href)}
+                        onTouchStart={() => warmRoute(item.href)}
                         className={cn(
                           "flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium",
                           isActive
                             ? "bg-primary text-primary-fg"
-                            : "bg-surface-muted/50 text-text hover:bg-surface-muted"
+                            : isNavigating
+                              ? "bg-surface-muted text-accent font-semibold"
+                              : "bg-surface-muted/50 text-text hover:bg-surface-muted"
                         )}
                       >
                         <span className="flex items-center gap-3">
-                          <span aria-hidden="true">{item.icon}</span>
+                          <span aria-hidden="true">
+                            {isNavigating ? <Loader2 className="h-5 w-5 animate-spin text-accent" /> : item.icon}
+                          </span>
                           <span>{item.label}</span>
                         </span>
                         {typeof item.badgeCount === "number" && item.badgeCount > 0 ? (

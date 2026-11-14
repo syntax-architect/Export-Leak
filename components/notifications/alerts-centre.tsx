@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Clock, ExternalLink, CheckCircle2, Search, Filter } from "lucide-react";
+import { Clock, ExternalLink, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { AlertSeverity } from "@/lib/database.types";
 import type { StoredAlertItem } from "@/lib/alerts/types";
 
@@ -210,17 +210,38 @@ export function AlertsCentre({ orgId, initialAlerts, iecs, isConsultant }: Alert
       {loading ? (
         <div className="py-16 text-center text-sm text-text-muted">Loading alerts...</div>
       ) : filteredAlerts.length === 0 ? (
-        <Card>
-          <CardContent className="py-16 text-center space-y-3">
-            <CheckCircle2 className="h-10 w-10 text-success mx-auto opacity-70" />
-            <h3 className="text-base font-bold text-text">No alerts found</h3>
-            <p className="text-xs text-text-muted max-w-sm mx-auto leading-relaxed">
-              {statusFilter === "open"
-                ? "All shipments and compliance obligations are healthy. New deadline warnings and scrip expiry alerts will automatically appear here."
-                : `No ${statusFilter} alerts found for the current filter.`}
-            </p>
-          </CardContent>
-        </Card>
+        statusFilter === "open" && severityFilter === "all" && !searchQuery ? (
+          <EmptyState
+            variant="success"
+            badge={<Badge variant="success">100% Compliant</Badge>}
+            title="All clear! Zero open compliance alerts"
+            description="All export shipments and regulatory obligations are healthy. EDPMS 9-month foreign remittance deadlines and duty credit scrip expiry dates are within safe limits."
+            tips={[
+              "Automated alerts trigger 30 days before RBI/EDPMS 9-month deadline",
+              "Scrip expiry warnings alert you 30 days and 7 days prior to lapse",
+              "Unmatched Shipping Bills are tracked until eBRC generation",
+            ]}
+          />
+        ) : (
+          <EmptyState
+            variant="filter"
+            title={`No ${statusFilter} alerts found`}
+            description={`No alerts match status '${statusFilter}'${severityFilter !== "all" ? ` with severity '${severityFilter}'` : ""}${searchQuery ? ` and query '${searchQuery}'` : ""}.`}
+            primaryAction={
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => {
+                  setStatusFilter("open");
+                  setSeverityFilter("all");
+                  setSearchQuery("");
+                }}
+              >
+                Reset to Open Alerts
+              </Button>
+            }
+          />
+        )
       ) : (
         <>
           {/* Desktop Table (>= 768px) */}

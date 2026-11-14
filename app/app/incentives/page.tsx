@@ -15,20 +15,23 @@ export default async function IncentivesPage() {
   const user = await getAuthenticatedUser();
   if (!user) redirect("/login?next=/app/incentives");
 
-  const organizations = await listUserOrganizations(user.id);
   const cookieStore = await cookies();
   const activeOrgId = cookieStore.get(ACTIVE_ORG_COOKIE)?.value;
+  const requestedIecId = cookieStore.get(ACTIVE_IEC_COOKIE)?.value ?? undefined;
+
+  const [organizations] = await Promise.all([
+    listUserOrganizations(user.id),
+  ]);
   const activeOrg = organizations.find((o) => o.orgId === activeOrgId) ?? organizations[0];
   if (!activeOrg) redirect("/onboarding");
 
-  const iecs = await listIecProfilesWithAlerts(activeOrg.orgId);
-  const requestedIecId = cookieStore.get(ACTIVE_IEC_COOKIE)?.value ?? undefined;
-  const activeIecId = iecs.find((i) => i.id === requestedIecId)?.id ?? iecs[0]?.id;
-
-  const initialWorkspace = await getIncentivesWorkspaceForOrg({
-    orgId: activeOrg.orgId,
-    iecId: activeIecId,
-  });
+  const [iecs, initialWorkspace] = await Promise.all([
+    listIecProfilesWithAlerts(activeOrg.orgId),
+    getIncentivesWorkspaceForOrg({
+      orgId: activeOrg.orgId,
+      iecId: requestedIecId,
+    }),
+  ]);
 
   return (
     <IncentivesWorkspace

@@ -115,9 +115,9 @@ export function checkRateLimit(
     const resetSeconds = Math.max(1, Math.ceil(resetMs / 1000));
     const resetMinutes = Math.ceil(resetSeconds / 60);
 
-    const defaultMsg = `You have reached the free usage limit (${maxRequests} requests per ${
+    const defaultMsg = `You have reached the limit (${maxRequests} requests per ${
       windowSeconds >= 3600 ? `${Math.round(windowSeconds / 3600)} hour` : `${windowSeconds}s`
-    }). Please wait ${resetMinutes} minute${resetMinutes === 1 ? "" : "s"} or create a free account to continue without interruption.`;
+    }). Please wait ${resetMinutes} minute${resetMinutes === 1 ? "" : "s"} or continue later.`;
 
     return {
       allowed: false,
