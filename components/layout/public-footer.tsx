@@ -121,7 +121,7 @@ export function PublicFooter() {
         </div>
 
         {/* Company identifiers & Disclaimers */}
-        <div className="mt-8 border-t border-border-subtle pt-6 text-xs text-text-muted/80">
+        <div className="mt-8 border-t border-border-subtle pt-6 text-xs text-text-muted">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <p className="font-medium text-text">

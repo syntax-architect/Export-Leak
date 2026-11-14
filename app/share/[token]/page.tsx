@@ -114,7 +114,7 @@ export default async function SharedReportPage(props: PageProps) {
     return (
       <div className="flex min-h-dvh flex-col bg-surface text-text">
         <PublicHeader />
-        <main className="flex-1 flex items-center justify-center p-6">
+        <main id="main-content" className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full rounded-[var(--radius-card)] border border-border-subtle bg-surface p-8 text-center space-y-4 shadow-[var(--shadow-sm)]">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-warning-soft text-warning mx-auto">
               <Clock className="h-6 w-6" />
@@ -156,7 +156,10 @@ export default async function SharedReportPage(props: PageProps) {
     <div className="flex min-h-dvh flex-col bg-surface text-text">
       <PublicHeader />
 
-      <main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8">
+      <main
+        id="main-content"
+        className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8"
+      >
         {/* Top Certification Header */}
         <div className="rounded-[var(--radius-card)] border border-border-subtle bg-surface p-6 shadow-[var(--shadow-sm)] space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border-subtle pb-4">

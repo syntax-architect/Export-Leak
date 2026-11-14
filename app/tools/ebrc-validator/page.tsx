@@ -25,7 +25,10 @@ export default function EbrcValidatorPage() {
     <div className="flex min-h-dvh flex-col bg-surface text-text">
       <PublicHeader />
 
-      <main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full max-w-full overflow-x-hidden">
+      <main
+        id="main-content"
+        className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full max-w-full overflow-x-hidden"
+      >
         {/* Breadcrumb */}
         <nav
           className="flex items-center gap-1.5 text-xs text-text-muted mb-6"

@@ -217,8 +217,8 @@ export function PricingTable({ highlightedPlanKey }: PricingTableProps) {
                 <Check className="h-4 w-4 shrink-0 text-success mt-0.5" aria-hidden="true" />
                 <span>Automatic 7-day Pro Trial on first upload</span>
               </li>
-              <li className="flex items-start gap-2 text-text-muted/60">
-                <X className="h-4 w-4 shrink-0 text-text-muted/40 mt-0.5" aria-hidden="true" />
+              <li className="flex items-start gap-2 text-text-muted">
+                <X className="h-4 w-4 shrink-0 text-text-muted mt-0.5" aria-hidden="true" />
                 <span>Bulk eBRC Excel export (preview only)</span>
               </li>
             </ul>
@@ -420,7 +420,7 @@ export function PricingTable({ highlightedPlanKey }: PricingTableProps) {
                       item.free ? (
                         <Check className="h-4 w-4 text-success" />
                       ) : (
-                        <X className="h-4 w-4 text-text-muted/40" />
+                        <X className="h-4 w-4 text-text-muted" aria-label="Not included" />
                       )
                     ) : (
                       item.free
@@ -431,7 +431,7 @@ export function PricingTable({ highlightedPlanKey }: PricingTableProps) {
                       item.exporter ? (
                         <Check className="h-4 w-4 text-success" />
                       ) : (
-                        <X className="h-4 w-4 text-text-muted/40" />
+                        <X className="h-4 w-4 text-text-muted" aria-label="Not included" />
                       )
                     ) : (
                       item.exporter
@@ -442,7 +442,7 @@ export function PricingTable({ highlightedPlanKey }: PricingTableProps) {
                       item.consultant ? (
                         <Check className="h-4 w-4 text-success" />
                       ) : (
-                        <X className="h-4 w-4 text-text-muted/40" />
+                        <X className="h-4 w-4 text-text-muted" aria-label="Not included" />
                       )
                     ) : (
                       item.consultant

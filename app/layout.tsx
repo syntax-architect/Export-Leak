@@ -4,6 +4,10 @@ import { APP_CONFIG } from "@/config/app";
 import { MotionProvider } from "@/lib/motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
+import { SkipToContent } from "@/components/layout/skip-to-content";
+import { AriaAnnouncer } from "@/components/ui/aria-announcer";
+import { PwaRegistrar } from "@/components/pwa/pwa-registrar";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,6 +24,15 @@ export const metadata: Metadata = {
   },
   description:
     "Track export incentives (RoDTEP & Duty Drawback), FEMA realisation deadlines, IRM payment matching, and bulk eBRC exports.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icons/icon-192.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_CONFIG.name,
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -41,6 +54,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#0F2744",
 };
 
 const organizationJsonLd = {
@@ -72,9 +86,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh bg-bg text-text antialiased">
+        <SkipToContent />
+        <AriaAnnouncer />
         <ThemeProvider>
           <MotionProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              {children}
+              <InstallPrompt />
+              <PwaRegistrar />
+            </ToastProvider>
           </MotionProvider>
         </ThemeProvider>
       </body>

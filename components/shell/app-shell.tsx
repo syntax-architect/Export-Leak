@@ -292,7 +292,10 @@ export function AppShell({
         </header>
 
         {/* Page Content */}
-        <main className="mx-auto w-full max-w-6xl flex-1 px-3 py-5 pb-24 sm:px-6 md:py-8 md:pb-8">
+        <main
+          id="main-content"
+          className="mx-auto w-full max-w-6xl flex-1 px-3 py-5 pb-24 sm:px-6 md:py-8 md:pb-8"
+        >
           <PageTransition>{children}</PageTransition>
         </main>
       </div>

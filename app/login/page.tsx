@@ -17,7 +17,10 @@ export default async function LoginPage({
   const nextPath = sanitizeNextPath(params.next, "/app");
 
   return (
-    <main className="flex min-h-dvh w-full flex-col items-center justify-center bg-bg px-4 py-10">
+    <main
+      id="main-content"
+      className="flex min-h-dvh w-full flex-col items-center justify-center bg-bg px-4 py-10"
+    >
       <LoginForm
         nextPath={nextPath}
         initialError={params.error}

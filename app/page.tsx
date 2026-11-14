@@ -25,7 +25,7 @@ export default function HomePage() {
     <div className="flex min-h-dvh flex-col bg-surface text-text">
       <PublicHeader />
 
-      <main className="flex-1 pb-16">
+      <main id="main-content" className="flex-1 pb-16">
         {/* 1. Hero Section */}
         <section className="relative overflow-hidden py-14 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-border-subtle bg-gradient-to-b from-surface-muted/50 via-surface to-surface">
           <div className="mx-auto max-w-4xl text-center space-y-6">

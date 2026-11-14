@@ -70,6 +70,25 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  /* Prevent iOS zoom on input focus and ensure readable inputs on mobile */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

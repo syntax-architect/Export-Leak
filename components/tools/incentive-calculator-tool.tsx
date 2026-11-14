@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 import type { PublicCalculatorResponse } from "@/lib/incentives/public-lookup";
 
 const SAMPLE_HS_CODES = [
@@ -105,7 +106,8 @@ export function IncentiveCalculatorTool() {
             </div>
             <div>
               <h2 className="text-base font-semibold text-text">
-                Free Instant RoDTEP &amp; Drawback Calculator
+                Free Instant <JargonTooltip slug="rodtep">RoDTEP</JargonTooltip> &amp;{" "}
+                <JargonTooltip slug="drawback">Drawback</JargonTooltip> Calculator
               </h2>
               <p className="text-xs text-text-muted mt-0.5">
                 Calculate expected incentives from DGFT Appendix 4R &amp; Customs AIR Drawback

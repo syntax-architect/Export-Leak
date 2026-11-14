@@ -83,7 +83,10 @@ export default async function GlossaryDetailPage(props: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8">
+      <main
+        id="main-content"
+        className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8"
+      >
         {/* Breadcrumb Navigation */}
         <nav
           className="flex flex-wrap items-center gap-1.5 text-xs text-text-muted"

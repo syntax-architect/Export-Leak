@@ -24,7 +24,7 @@ export default async function PricingPage({ searchParams }: PricingPageProps) {
     <div className="flex min-h-dvh flex-col bg-surface text-text">
       <PublicHeader />
 
-      <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
+      <main id="main-content" className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-text">

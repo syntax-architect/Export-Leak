@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 
 interface CellError {
   rowIndex: number;
@@ -126,7 +127,7 @@ export function EbrcValidatorTool() {
             </div>
             <div>
               <h2 className="text-base font-semibold text-text">
-                Free DGFT Bulk eBRC Excel Validator
+                Free DGFT Bulk <JargonTooltip slug="ebrc">eBRC</JargonTooltip> Excel Validator
               </h2>
               <p className="text-xs text-text-muted mt-0.5">
                 Check your Excel file against official DGFT schema rules before uploading to the

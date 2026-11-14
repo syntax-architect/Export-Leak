@@ -18,7 +18,7 @@ export default async function UnsubscribePage(props: {
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text">
       <PublicHeader />
-      <main className="flex-1 py-12 px-4 sm:px-6">
+      <main id="main-content" className="flex-1 py-12 px-4 sm:px-6">
         <div className="mx-auto max-w-xl">
           <UnsubscribeView token={token} />
         </div>
