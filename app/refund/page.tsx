@@ -7,8 +7,7 @@ import { APP_CONFIG } from "@/config/app";
 
 export const metadata = {
   title: `Refund & Cancellation Policy | ${APP_CONFIG.name}`,
-  description:
-    "Plain-language, fair refund and cancellation policy for ExportLeak Indian exporter and consultant subscriptions.",
+  description: `Plain-language, fair refund and cancellation policy for ${APP_CONFIG.name} Indian exporter and consultant subscriptions.`,
 };
 
 export default function RefundPolicyPage() {

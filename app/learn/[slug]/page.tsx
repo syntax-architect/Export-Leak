@@ -189,7 +189,7 @@ export default async function GlossaryDetailPage(props: PageProps) {
           </div>
         </section>
 
-        {/* How ExportLeak Automates It */}
+        {/* How Automation Helps */}
         <section className="rounded-[var(--radius-card)] border border-accent/30 bg-accent-soft/20 p-6 space-y-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-accent" />

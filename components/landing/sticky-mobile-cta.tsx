@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { APP_CONFIG } from "@/config/app";
 
 export function StickyMobileCta() {
   const [visible, setVisible] = React.useState(false);
@@ -33,7 +34,7 @@ export function StickyMobileCta() {
     >
       <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-text">Try ExportLeak Free</span>
+          <span className="text-xs font-bold text-text">Try {APP_CONFIG.name} Free</span>
           <span className="text-[11px] text-text-muted flex items-center gap-1">
             <ShieldCheck className="h-3 w-3 text-success shrink-0" />
             <span>7-day Pro trial · Zero DSC / Card</span>

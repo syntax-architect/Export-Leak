@@ -28,6 +28,7 @@ import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { TrustGuaranteesList } from "@/components/trust/trust-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { APP_CONFIG } from "@/config/app";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -84,28 +85,28 @@ export function WorkspaceShell({
         icon: <LayoutDashboard className="h-5 w-5" />,
       },
       {
-        id: "documents",
-        label: "Documents",
-        href: "/app/documents",
-        icon: <FileText className="h-5 w-5" />,
-      },
-      {
         id: "shipping-bills",
         label: "Shipping Bills",
         href: "/app/shipping-bills",
         icon: <FileCheck2 className="h-5 w-5" />,
       },
       {
-        id: "matches",
-        label: "IRM & Matching",
-        href: "/app/matches",
-        icon: <ArrowLeftRight className="h-5 w-5" />,
-      },
-      {
         id: "incentives",
         label: "Incentives",
         href: "/app/incentives",
         icon: <BadgeIndianRupee className="h-5 w-5" />,
+      },
+      {
+        id: "documents",
+        label: "Documents",
+        href: "/app/documents",
+        icon: <FileText className="h-5 w-5" />,
+      },
+      {
+        id: "matches",
+        label: "IRM & Matching",
+        href: "/app/matches",
+        icon: <ArrowLeftRight className="h-5 w-5" />,
       },
       {
         id: "ebrc",
@@ -225,7 +226,7 @@ export function WorkspaceShell({
         <SheetHeader>
           <SheetTitle>Help &amp; Trust</SheetTitle>
           <SheetDescription>
-            Guided walkthroughs, setup checklist, and how ExportLeak keeps your files safe.
+            Guided walkthroughs, setup checklist, and how {APP_CONFIG.name} keeps your files safe.
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-3">

@@ -192,9 +192,9 @@ export default async function SharedReportPage(props: PageProps) {
           </div>
 
           <p className="text-xs text-text-muted leading-relaxed">
-            This certified summary was generated via ExportLeak for chartered accountants, EXIM
-            consultants, and finance teams to review export realisation status and unclaimed duty
-            incentives without exposing underlying document files.
+            This certified summary was generated via {APP_CONFIG.name} for chartered accountants,
+            EXIM consultants, and finance teams to review export realisation status and unclaimed
+            duty incentives without exposing underlying document files.
           </p>
         </div>
 
@@ -289,7 +289,7 @@ export default async function SharedReportPage(props: PageProps) {
         </div>
 
         <div className="text-center pt-4 text-xs text-text-muted">
-          <p className="font-semibold text-text">Prepared with ExportLeak</p>
+          <p className="font-semibold text-text">Prepared with {APP_CONFIG.name}</p>
           <p className="text-[11px] mt-0.5">
             Automated export incentive tracking and bulk DGFT eBRC generation for Indian trade.
           </p>

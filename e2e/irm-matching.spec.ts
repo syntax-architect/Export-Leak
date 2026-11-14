@@ -13,6 +13,8 @@ test.describe("Prompt 7: IRM import preview, matching review, manual allocation 
     });
     const page = await mobileContext.newPage();
 
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    const iecCode = `ACL${suffix}01M`;
     const email = `irm-e2e-${Date.now()}@example.invalid`;
     await page.goto("/login");
     await page.getByLabel("Work email").fill(email);
@@ -20,7 +22,7 @@ test.describe("Prompt 7: IRM import preview, matching review, manual allocation 
 
     await expect(page).toHaveURL(/\/onboarding/, { timeout: 30_000 });
     await page.getByLabel("Company / Exporter name").fill("Ludhiana Knitwear Exports");
-    await page.getByLabel("IEC Code (optional now)").fill("AAACL9012M");
+    await page.getByLabel("IEC Code (optional now)").fill(iecCode);
     await page.getByTestId("wizard-step1-submit").click();
     await page.getByTestId("wizard-skip-all-btn").click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
@@ -42,7 +44,9 @@ test.describe("Prompt 7: IRM import preview, matching review, manual allocation 
 
     // Navigate to IRM & Matching
     await page.goto("/app/matches");
-    await expect(page.getByRole("heading", { name: /IRM Import & Matching/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /(Bank Payment \(IRM\) Matching|IRM Import & Matching)/i })
+    ).toBeVisible();
 
     const mobileOverflowBefore = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth

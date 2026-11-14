@@ -105,7 +105,7 @@ export function UnsubscribeView({ token }: UnsubscribeViewProps) {
             .
           </p>
           <Button asChild variant="secondary" className="w-full">
-            <Link href="/login">Sign in to ExportLeak</Link>
+            <Link href="/login">Sign in to {APP_CONFIG.name}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -192,7 +192,7 @@ export function UnsubscribeView({ token }: UnsubscribeViewProps) {
             className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-text"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Return to ExportLeak</span>
+            <span>Return to {APP_CONFIG.name}</span>
           </Link>
         </div>
       </CardContent>

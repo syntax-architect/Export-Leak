@@ -12,6 +12,8 @@ test.describe("Prompt 8: Incentive calculation engine, scroll importer, breakdow
     });
     const page = await context.newPage();
 
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    const iecCode = `ACT${suffix}01K`;
     const email = `incentives-e2e-${Date.now()}@example.invalid`;
     await page.goto("/login");
     await page.getByLabel("Work email").fill(email);
@@ -19,7 +21,7 @@ test.describe("Prompt 8: Incentive calculation engine, scroll importer, breakdow
 
     await expect(page).toHaveURL(/\/onboarding/, { timeout: 30_000 });
     await page.getByLabel("Company / Exporter name").fill("Tiruppur Knit Exports");
-    await page.getByLabel("IEC Code (optional now)").fill("AAACT7788K");
+    await page.getByLabel("IEC Code (optional now)").fill(iecCode);
     await page.getByTestId("wizard-step1-submit").click();
     await page.getByTestId("wizard-skip-all-btn").click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });

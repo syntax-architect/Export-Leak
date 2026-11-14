@@ -1,3 +1,5 @@
+import { APP_CONFIG } from "@/config/app";
+
 export interface GlossaryTerm {
   slug: string;
   term: string;
@@ -50,8 +52,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Track scroll issuance weekly and generate e-scrips promptly upon scroll credit.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak cross-references every 8-digit HS code on your Shipping Bills with official DGFT rate schedules, calculates your exact entitlement with caps, and alerts you when customs credits less than what you earned.",
+    howExportLeakHelps: `${APP_CONFIG.name} cross-references every 8-digit HS code on your Shipping Bills with official DGFT rate schedules, calculates your exact entitlement with caps, and alerts you when customs credits less than what you earned.`,
     relatedTool: {
       title: "Free RoDTEP & Drawback Calculator",
       href: "/tools/calculator",
@@ -96,8 +97,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Generate and upload bulk eBRCs within 30 days of receiving inward remittance.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak automatically matches bank IRM exports with your Shipping Bill PDFs and produces the exact DGFT bulk eBRC Excel format without manual transcription or format errors.",
+    howExportLeakHelps: `${APP_CONFIG.name} automatically matches bank IRM exports with your Shipping Bill PDFs and produces the exact DGFT bulk eBRC Excel format without manual transcription or format errors.`,
     relatedTool: {
       title: "Free Bulk eBRC Excel Validator",
       href: "/tools/ebrc-validator",
@@ -137,8 +137,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Verify purpose code (e.g. P0102 for standard goods, P0103 for advance) with your bank before submitting documentation.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak tracks the remaining balance of every IRM, prevents over-allocation down to the exact paisa/cent, and matches buyer names and invoice numbers with intelligent fuzzy algorithms.",
+    howExportLeakHelps: `${APP_CONFIG.name} tracks the remaining balance of every IRM, prevents over-allocation down to the exact paisa/cent, and matches buyer names and invoice numbers with intelligent fuzzy algorithms.`,
     relatedTool: {
       title: "Free RoDTEP & Drawback Calculator",
       href: "/tools/calculator",
@@ -179,8 +178,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Obtain bank charge write-off certificates for deductions within permitted regulatory limits.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak runs a daily statutory countdown on all open shipping bills, alerts you at 90, 60, 30, and 7 days before EDPMS caution-listing, and prepares the documentation to close entries on time.",
+    howExportLeakHelps: `${APP_CONFIG.name} runs a daily statutory countdown on all open shipping bills, alerts you at 90, 60, 30, and 7 days before EDPMS caution-listing, and prepares the documentation to close entries on time.`,
     relatedTool: {
       title: "Free eBRC Excel Validator",
       href: "/tools/ebrc-validator",
@@ -220,8 +218,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Verify that your shipping bill invoice description exactly matches the AIR schedule heading.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak tracks expected drawback credits, reconciles them with your bank credit statements, and flags short-payments or missing scrolls instantly.",
+    howExportLeakHelps: `${APP_CONFIG.name} tracks expected drawback credits, reconciles them with your bank credit statements, and flags short-payments or missing scrolls instantly.`,
     relatedTool: {
       title: "Free RoDTEP & Drawback Calculator",
       href: "/tools/calculator",
@@ -261,8 +258,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Monitor prevailing scrip market premiums before transferring on ICEGATE.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak continuously monitors your scrip ledger, calculates days remaining until expiry, and sends proactive notifications so you never allow a scrip to expire worthless.",
+    howExportLeakHelps: `${APP_CONFIG.name} continuously monitors your scrip ledger, calculates days remaining until expiry, and sends proactive notifications so you never allow a scrip to expire worthless.`,
     relatedTool: {
       title: "Free RoDTEP & Drawback Calculator",
       href: "/tools/calculator",
@@ -301,8 +297,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Ensure all Authorized Dealer (AD) bank branches are registered under your IEC profile on ICEGATE.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak supports managing multiple IECs in one account, validates 10-character alphanumeric IEC formatting, and tracks statutory deadlines across all your entities.",
+    howExportLeakHelps: `${APP_CONFIG.name} supports managing multiple IECs in one account, validates 10-character alphanumeric IEC formatting, and tracks statutory deadlines across all your entities.`,
     relatedTool: {
       title: "Free Bulk eBRC Excel Validator",
       href: "/tools/ebrc-validator",
@@ -340,8 +335,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Monitor shipping bill status until it changes from 'LEO' to 'eBRC Ready'.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak parses LEO dates directly from your Shipping Bill PDFs and establishes a timeline of every milestone from filing to cash credit.",
+    howExportLeakHelps: `${APP_CONFIG.name} parses LEO dates directly from your Shipping Bill PDFs and establishes a timeline of every milestone from filing to cash credit.`,
     relatedTool: {
       title: "Free Shipping Bill Extractor",
       href: "/tools/shipping-bill-extractor",
@@ -381,8 +375,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Submit Form ETX to your Authorized Dealer bank at least 15 days before the 9-month expiry.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak features a dedicated statutory deadline engine with color-coded countdown indicators (green > 90d, amber 30-90d, red < 30d) and automated email alerts.",
+    howExportLeakHelps: `${APP_CONFIG.name} features a dedicated statutory deadline engine with color-coded countdown indicators (green > 90d, amber 30-90d, red < 30d) and automated email alerts.`,
     relatedTool: {
       title: "Free Bulk eBRC Excel Validator",
       href: "/tools/ebrc-validator",
@@ -420,8 +413,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         fix: "Ensure exact match between AD code, bank IFSC, and port code on every eBRC row.",
       },
     ],
-    howExportLeakHelps:
-      "ExportLeak checks every row of your Bulk eBRC Excel for valid 7-digit AD codes and matching IFSCs, catching mismatches before they cause DGFT portal rejections.",
+    howExportLeakHelps: `${APP_CONFIG.name} checks every row of your Bulk eBRC Excel for valid 7-digit AD codes and matching IFSCs, catching mismatches before they cause DGFT portal rejections.`,
     relatedTool: {
       title: "Free Bulk eBRC Excel Validator",
       href: "/tools/ebrc-validator",

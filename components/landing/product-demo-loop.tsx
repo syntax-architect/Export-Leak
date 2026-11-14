@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { APP_CONFIG } from "@/config/app";
 
 export function ProductDemoLoop() {
   const [activeStep, setActiveStep] = React.useState<0 | 1 | 2>(0);
@@ -237,7 +238,8 @@ export function ProductDemoLoop() {
             </div>
 
             <div className="rounded bg-success-soft/30 border border-success/20 p-2.5 text-center text-xs text-success font-medium">
-              💡 ExportLeak flagged ₹31,125 of unclaimed money you would have otherwise forgotten
+              💡 {APP_CONFIG.name} flagged ₹31,125 of unclaimed money you would have otherwise
+              forgotten
             </div>
           </div>
         )}
@@ -308,7 +310,7 @@ export function ProductDemoLoop() {
           <span>Zero portal password or DSC token storage required</span>
         </div>
         <div className="flex items-center gap-1.5 font-medium text-text">
-          <span>ExportLeak Reconciles ₹50+ Cr Export Invoices Monthly</span>
+          <span>{APP_CONFIG.name} Reconciles ₹50+ Cr Export Invoices Monthly</span>
         </div>
       </div>
     </div>

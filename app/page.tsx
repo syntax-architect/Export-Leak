@@ -124,9 +124,9 @@ export default function HomePage() {
               </div>
               <h3 className="text-base font-bold text-text">Auto-Reconcile &amp; Spot Leaks</h3>
               <p className="text-xs leading-relaxed text-text-muted">
-                ExportLeak automatically matches bank payments to shipping bills, checks for short
-                payments, compares RoDTEP/Drawback credits against official rate tables, and tracks
-                FEMA 9-month realisation deadlines.
+                {APP_CONFIG.name} automatically matches bank payments to shipping bills, checks for
+                short payments, compares RoDTEP/Drawback credits against official rate tables, and
+                tracks FEMA 9-month realisation deadlines.
               </p>
             </div>
 

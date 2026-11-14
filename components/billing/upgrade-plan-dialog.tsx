@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getPlanConfig, type PlanLimitKey } from "@/config/plans";
+import { APP_CONFIG } from "@/config/app";
 import type { PlanLimitDetails } from "@/lib/auth/errors";
 
 export interface UpgradePlanDialogProps {
@@ -82,7 +83,7 @@ export function UpgradePlanDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="h-4 w-4 text-warning" aria-hidden="true" />
-            <span>{copy?.title ?? "Upgrade your ExportLeak plan"}</span>
+            <span>{copy?.title ?? `Upgrade your ${APP_CONFIG.name} plan`}</span>
           </DialogTitle>
           <DialogDescription>
             {details && copy ? copy.buildDescription(details, currentPlan.displayName) : ""}

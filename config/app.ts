@@ -1,6 +1,7 @@
 export const APP_CONFIG = {
   name: "ExportLeak",
   tagline: "Export Incentive & Payment Tracker",
+  legalEntityName: "ExportLeak Solutions Private Limited",
   supportEmail: "support@exportleak.example",
   whatsappNumber: "+91 00000 00000",
   timezone: "Asia/Kolkata",

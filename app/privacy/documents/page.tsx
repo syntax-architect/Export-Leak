@@ -177,7 +177,7 @@ export default function DocumentHandlingPage() {
         <div className="border-t border-border-subtle pt-6 text-xs text-text-muted space-y-1">
           <p className="font-semibold text-text">DPDP Grievance Officer &amp; Inquiries:</p>
           <p>
-            ExportLeak Solutions Private Limited · Email:{" "}
+            {APP_CONFIG.legalEntityName} · Email:{" "}
             <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-accent hover:underline">
               {APP_CONFIG.supportEmail}
             </a>

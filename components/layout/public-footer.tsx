@@ -124,9 +124,7 @@ export function PublicFooter() {
         <div className="mt-8 border-t border-border-subtle pt-6 text-xs text-text-muted">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <p className="font-medium text-text">
-                ExportLeak Solutions Private Limited (incorporation in progress)
-              </p>
+              <p className="font-medium text-text">{APP_CONFIG.legalEntityName}</p>
               <p className="mt-1">
                 CIN: U74999TN2026PTC000000 (Placeholder) · GSTIN: 33AAAAA0000A1Z5 (Pending CA
                 confirmation)
@@ -137,7 +135,7 @@ export function PublicFooter() {
             </div>
             <div className="md:text-right">
               <p>
-                Regulatory Disclaimer: ExportLeak is an independent software tool and is not
+                Regulatory Disclaimer: {APP_CONFIG.name} is an independent software tool and is not
                 affiliated with or endorsed by the Directorate General of Foreign Trade (DGFT),
                 ICEGATE, CBIC, or the Reserve Bank of India (RBI).
               </p>

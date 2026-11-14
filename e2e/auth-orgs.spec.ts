@@ -5,6 +5,7 @@ test.describe("Auth, organizations, onboarding, and viewer isolation", () => {
     browser,
   }) => {
     const uniqueSuffix = Date.now();
+    const iecCode = `ACH${String(uniqueSuffix).slice(-4)}01K`;
     const ownerEmail = `owner-${uniqueSuffix}@example.invalid`;
     const viewerEmail = `viewer-${uniqueSuffix}@example.invalid`;
     const outsiderEmail = `outsider-${uniqueSuffix}@example.invalid`;
@@ -36,11 +37,11 @@ test.describe("Auth, organizations, onboarding, and viewer isolation", () => {
     await expect(ownerPage).toHaveURL(/\/app/);
 
     await ownerPage.goto("/app/iecs");
-    await ownerPage.getByLabel("IEC Code").fill("AAACH1234K");
+    await ownerPage.getByLabel("IEC Code").fill(iecCode);
     await ownerPage.getByLabel("Legal Name").fill("Kaveri Garments Test Pvt Ltd");
     await ownerPage.getByRole("button", { name: "Save IEC profile" }).click();
     await expect(
-      ownerPage.getByTestId("data-table-mobile").getByText("AAACH1234K", { exact: true })
+      ownerPage.getByTestId("data-table-mobile").getByText(iecCode, { exact: true })
     ).toBeVisible();
 
     await ownerPage.goto("/app/documents");

@@ -10,7 +10,7 @@ export function ContactForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitted(true);
-    window.location.href = `mailto:${APP_CONFIG.supportEmail}?subject=ExportLeak Support Inquiry`;
+    window.location.href = `mailto:${APP_CONFIG.supportEmail}?subject=${encodeURIComponent(APP_CONFIG.name)} Support Inquiry`;
   };
 
   return (

@@ -8,8 +8,7 @@ import { APP_CONFIG } from "@/config/app";
 
 export const metadata = {
   title: `Privacy Policy | ${APP_CONFIG.name}`,
-  description:
-    "Plain-language privacy commitments, AI processing disclosures, and India DPDP Act compliance for ExportLeak.",
+  description: `Plain-language privacy commitments, AI processing disclosures, and India DPDP Act compliance for ${APP_CONFIG.name}.`,
 };
 
 export default function PrivacyPolicyPage() {

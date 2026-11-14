@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
+import { APP_CONFIG } from "@/config/app";
 
 interface CellError {
   rowIndex: number;
@@ -311,9 +312,9 @@ export function EbrcValidatorTool() {
               </h3>
             </div>
             <p className="text-xs text-text-muted leading-relaxed">
-              ExportLeak automatically matches your bank IRMs to Shipping Bills, enforces exact DGFT
-              validation rules, and generates compliant bulk eBRC spreadsheets with zero manual data
-              entry.
+              {APP_CONFIG.name} automatically matches your bank IRMs to Shipping Bills, enforces
+              exact DGFT validation rules, and generates compliant bulk eBRC spreadsheets with zero
+              manual data entry.
             </p>
             <div>
               <Button asChild variant="primary" size="sm" className="min-h-10">

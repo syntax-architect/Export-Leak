@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useToast } from "@/components/ui/toast";
+import { APP_CONFIG } from "@/config/app";
 
 export function PwaRegistrar() {
   const { toast } = useToast();
@@ -41,7 +42,7 @@ export function PwaRegistrar() {
                 // New content available
                 toast({
                   title: "Update Available",
-                  description: "A new version of ExportLeak is available. Refresh to update.",
+                  description: `A new version of ${APP_CONFIG.name} is available. Refresh to update.`,
                   variant: "default",
                 });
               }

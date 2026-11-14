@@ -11,6 +11,9 @@ test.describe("Prompt 11: Plans, entitlements, usage meters & upgrade dialogs", 
     });
     const page = await context.newPage();
 
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    const iecCode1 = `ACK${suffix}01P`;
+    const iecCode2 = `ACK${suffix}02Q`;
     const email = `entitlements-e2e-${Date.now()}@example.invalid`;
     await page.goto("/login");
     await page.getByLabel("Work email").fill(email);
@@ -18,7 +21,7 @@ test.describe("Prompt 11: Plans, entitlements, usage meters & upgrade dialogs", 
 
     await expect(page).toHaveURL(/\/onboarding/, { timeout: 30_000 });
     await page.getByLabel("Company / Exporter name").fill("Kochi Spice Exporters");
-    await page.getByLabel("IEC Code (optional now)").fill("AAACK7788P");
+    await page.getByLabel("IEC Code (optional now)").fill(iecCode1);
     await page.getByTestId("wizard-step1-submit").click();
     await page.getByTestId("wizard-skip-all-btn").click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
@@ -46,7 +49,7 @@ test.describe("Prompt 11: Plans, entitlements, usage meters & upgrade dialogs", 
     );
     expect(mobileOverflowIec).toBe(false);
 
-    await page.getByLabel("IEC Code").fill("AAACK9900Q");
+    await page.getByLabel("IEC Code").fill(iecCode2);
     await page.getByLabel("Legal Name").fill("Second IEC Unit");
     await page.getByRole("button", { name: /Save IEC profile/i }).click();
     await expect(page.getByTestId("plan-upgrade-dialog")).toBeVisible({ timeout: 15_000 });

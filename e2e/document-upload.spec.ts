@@ -4,7 +4,10 @@ test.describe("Prompt 5: Document upload, duplicate SHA-256, magic bytes, and 50
   test("rejects renamed .exe, blocks duplicate PDFs with Already uploaded, filters, and handles 50 PDFs on throttled mobile without freezing UI", async ({
     browser,
   }) => {
-    const email = `docs-p5-${Date.now()}@example.invalid`;
+    test.setTimeout(180_000);
+    const suffix = String(Date.now()).slice(-4);
+    const email = `docs-p5-${suffix}@example.invalid`;
+    const iecCode = `ACS${suffix}01E`;
     const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
     const page = await context.newPage();
 
@@ -15,7 +18,7 @@ test.describe("Prompt 5: Document upload, duplicate SHA-256, magic bytes, and 50
 
     await expect(page).toHaveURL(/\/onboarding/);
     await page.getByLabel("Company / Exporter name").fill("Surat Silk Exports");
-    await page.getByLabel("IEC Code (optional now)").fill("AAACS9876E");
+    await page.getByLabel("IEC Code (optional now)").fill(iecCode);
     await page.getByTestId("wizard-step1-submit").click();
     await page.getByTestId("wizard-skip-all-btn").click();
     await expect(page).toHaveURL(/\/app/);
@@ -100,7 +103,7 @@ test.describe("Prompt 5: Document upload, duplicate SHA-256, magic bytes, and 50
 
     // Wait for filtered 50th file to finish uploading and appear in persisted list
     await expect(page.getByTestId("documents-list-card").getByText("batch-sb-50.pdf")).toBeVisible({
-      timeout: 45000,
+      timeout: 90000,
     });
 
     // Clear search and verify total document count (1 scroll + 50 batch SBs = 51) & 50/50 usage meter

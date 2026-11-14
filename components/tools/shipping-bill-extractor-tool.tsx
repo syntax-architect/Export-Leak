@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { APP_CONFIG } from "@/config/app";
 
 interface ExtractedItem {
   hsCode: string;
@@ -310,9 +311,9 @@ export function ShippingBillExtractorTool() {
               </h3>
             </div>
             <p className="text-xs text-text-muted leading-relaxed">
-              ExportLeak reconciles every Shipping Bill against bank IRMs, calculates expected
-              RoDTEP/Drawback credits, flags FEMA 9-month realisation deadlines, and generates your
-              DGFT bulk eBRC file in seconds.
+              {APP_CONFIG.name} reconciles every Shipping Bill against bank IRMs, calculates
+              expected RoDTEP/Drawback credits, flags FEMA 9-month realisation deadlines, and
+              generates your DGFT bulk eBRC file in seconds.
             </p>
             <div>
               <Button asChild variant="primary" size="sm" className="min-h-10">

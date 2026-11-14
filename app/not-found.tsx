@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft, FileQuestion, Home, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { APP_CONFIG } from "@/config/app";
 
 export const metadata = {
-  title: "Page Not Found | ExportLeak",
+  title: `Page Not Found | ${APP_CONFIG.name}`,
   description: "The page you are looking for could not be found.",
 };
 

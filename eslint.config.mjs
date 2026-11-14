@@ -18,6 +18,7 @@ const eslintConfig = [
       "test-results/**",
       "coverage/**",
       ".tmp-storage/**",
+      ".zwork/**",
       "next-env.d.ts",
     ],
   },

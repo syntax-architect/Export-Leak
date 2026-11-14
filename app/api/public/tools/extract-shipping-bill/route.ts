@@ -9,6 +9,7 @@ import { validateMagicBytes } from "@/lib/documents/file-security";
 import { extractPdfPagesText } from "@/lib/documents/parsing/pdf-extract";
 import { runDeterministicShippingBillParser } from "@/lib/documents/parsing/deterministic-parser";
 import type { ParsedShippingBillItemDraft } from "@/lib/documents/parsing/types";
+import { APP_CONFIG } from "@/config/app";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
       "pdf_extract",
       5,
       86400,
-      "You have reached the free limit of 5 Shipping Bill PDF extractions for today. Create a free ExportLeak account for unlimited uploads, automated bank IRM matching, and bulk DGFT eBRC generation."
+      `You have reached the free limit of 5 Shipping Bill PDF extractions for today. Create a free ${APP_CONFIG.name} account for unlimited uploads, automated bank IRM matching, and bulk DGFT eBRC generation.`
     );
     if (!rateCheck.allowed) {
       return createRateLimitResponse(rateCheck, {
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     if (downloadExcel) {
       const wb = new ExcelJS.Workbook();
-      wb.creator = "ExportLeak Free Extractor";
+      wb.creator = `${APP_CONFIG.name} Free Extractor`;
 
       // Sheet 1: Header
       const headerSheet = wb.addWorksheet("Shipping Bill");

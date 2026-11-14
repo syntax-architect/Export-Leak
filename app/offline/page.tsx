@@ -59,7 +59,7 @@ export default function OfflinePage() {
         <div className="border-t border-border-subtle pt-4 text-xs text-text-muted">
           Need urgent help? WhatsApp support:{" "}
           <a
-            href={`https://wa.me/${APP_CONFIG.whatsappNumber.replace(/[^0-9]/g, "")}?text=Hi%20ExportLeak%20Support`}
+            href={`https://wa.me/${APP_CONFIG.whatsappNumber.replace(/[^0-9]/g, "")}?text=Hi%20${encodeURIComponent(APP_CONFIG.name)}%20Support`}
             className="font-medium text-accent hover:underline"
             target="_blank"
             rel="noopener noreferrer"

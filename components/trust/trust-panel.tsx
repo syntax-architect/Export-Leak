@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { APP_CONFIG } from "@/config/app";
 
 export interface TrustGuaranteesProps {
   compact?: boolean;
@@ -69,7 +70,7 @@ export function TrustPanelTrigger({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>How ExportLeak protects your trade data</DialogTitle>
+          <DialogTitle>How {APP_CONFIG.name} protects your trade data</DialogTitle>
           <DialogDescription>
             Built for Indian exporters and EXIM consultants with strict tenant isolation.
           </DialogDescription>

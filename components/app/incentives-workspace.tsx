@@ -17,6 +17,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import { APP_CONFIG } from "@/config/app";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -612,7 +613,7 @@ export function IncentivesWorkspace({
               <EmptyState
                 icon={<Calculator className="h-7 w-7 text-accent" />}
                 title="No incentive comparisons yet"
-                description="ExportLeak calculates expected RoDTEP, RoSCTL, and Duty Drawback by cross-referencing your Shipping Bill HS codes against official government rate schedules."
+                description={`${APP_CONFIG.name} calculates expected RoDTEP, RoSCTL, and Duty Drawback by cross-referencing your Shipping Bill HS codes against official government rate schedules.`}
                 tips={[
                   "Upload Shipping Bill PDFs in Documents to extract claimed schemes and FOB values",
                   "Rates are calculated based on LEO (Let Export Order) date validity",
@@ -1121,7 +1122,7 @@ export function IncentivesWorkspace({
                   description="Add your electronic duty credit scrips (RoDTEP / RoSCTL) issued by DGFT to monitor 1-year expiry deadlines and record customs utilisation or third-party transfer."
                   tips={[
                     "DGFT e-scrips expire exactly 1 year from the date of generation",
-                    "ExportLeak triggers automated alerts 30 days before expiration to prevent forfeiture",
+                    `${APP_CONFIG.name} triggers automated alerts 30 days before expiration to prevent forfeiture`,
                     "Record transfers to buyers or utilisation against customs bills of entry",
                   ]}
                   primaryAction={

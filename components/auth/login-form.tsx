@@ -249,7 +249,7 @@ export function LoginForm({
             <Button
               type="button"
               variant="primary"
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white shadow-sm font-semibold"
+              className="w-full bg-amber-800 hover:bg-amber-900 text-white shadow-sm font-semibold"
               onClick={() => handleForceLogin(email)}
               loading={forceLoading}
               loadingText="Bypassing authentication..."

@@ -6,7 +6,7 @@ import { APP_CONFIG } from "@/config/app";
 
 export const metadata = {
   title: `Terms of Service | ${APP_CONFIG.name}`,
-  description: "Terms and conditions governing the use of the ExportLeak export tracking platform.",
+  description: `Terms and conditions governing the use of the ${APP_CONFIG.name} export tracking platform.`,
 };
 
 export default function TermsOfServicePage() {
@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
                 <p>
                   These Terms of Service (&ldquo;Terms&rdquo;) constitute a legally binding
                   agreement between you (whether personally or on behalf of an entity,
-                  &ldquo;User&rdquo;, &ldquo;you&rdquo;) and ExportLeak Solutions Private Limited
+                  &ldquo;User&rdquo;, &ldquo;you&rdquo;) and {APP_CONFIG.legalEntityName}
                   (&ldquo;Company&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;),
                   concerning your access to and use of the {APP_CONFIG.name} application and
                   website. By accessing or using our service, you agree to be bound by these Terms.

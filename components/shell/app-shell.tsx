@@ -82,12 +82,8 @@ export function AppShell({
 }: AppShellProps) {
   const router = useRouter();
   const [moreOpen, setMoreOpen] = React.useState(false);
-  const [navigatingId, setNavigatingId] = React.useState<string | null>(null);
-  const [prevActiveNavId, setPrevActiveNavId] = React.useState(activeNavId);
-  if (prevActiveNavId !== activeNavId) {
-    setPrevActiveNavId(activeNavId);
-    setNavigatingId(null);
-  }
+  const [pendingNavId, setPendingNavId] = React.useState<string | null>(null);
+  const navigatingId = pendingNavId !== activeNavId ? pendingNavId : null;
   const lastNavTapRef = React.useRef<{ id: string; time: number }>({ id: "", time: 0 });
 
   const handleNavClick = React.useCallback(
@@ -105,7 +101,7 @@ export function AppShell({
       }
 
       lastNavTapRef.current = { id: item.id, time: now };
-      setNavigatingId(item.id);
+      setPendingNavId(item.id);
       window.dispatchEvent(new CustomEvent("exportleak:navigation-start", { detail: item.href }));
     },
     [activeNavId]

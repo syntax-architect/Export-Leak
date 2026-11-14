@@ -13,6 +13,7 @@ import {
   Sparkles,
   Wrench,
 } from "lucide-react";
+import { APP_CONFIG } from "@/config/app";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -309,7 +310,7 @@ export function EbrcWorkspace({ orgId, userRole, initialData }: EbrcWorkspacePro
           </li>
         </ol>
         <p className="text-[11px] font-medium text-text-muted pt-1 border-t border-border-subtle">
-          ExportLeak never asks for or stores your DSC token. You retain 100% control of your
+          {APP_CONFIG.name} never asks for or stores your DSC token. You retain 100% control of your
           government submissions.
         </p>
       </div>

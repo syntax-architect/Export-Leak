@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
+import { APP_CONFIG } from "@/config/app";
 import type { PublicCalculatorResponse } from "@/lib/incentives/public-lookup";
 
 const SAMPLE_HS_CODES = [
@@ -410,8 +411,8 @@ export function IncentiveCalculatorTool() {
                 </div>
                 <p className="text-xs text-text-muted leading-relaxed break-words">
                   Most exporters leave 1.5% to 3% of their FOB value unclaimed due to scroll delays,
-                  unmatched shipping bills, and expiring duty scrips. ExportLeak compares your
-                  actual customs credits against expected rates automatically.
+                  unmatched shipping bills, and expiring duty scrips. {APP_CONFIG.name} compares
+                  your actual customs credits against expected rates automatically.
                 </p>
                 <div className="pt-1">
                   <Button asChild variant="primary" size="sm" className="min-h-10 w-full sm:w-auto">

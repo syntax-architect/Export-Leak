@@ -13,14 +13,16 @@ test.describe("Prompt 10: Bulk eBRC Excel validator, plan gate, and DGFT .xlsx e
     });
     const page = await context.newPage();
 
-    const email = `ebrc-e2e-${Date.now()}@example.invalid`;
+    const suffix = String(Date.now()).slice(-4);
+    const email = `ebrc-e2e-${suffix}@example.invalid`;
+    const iecCode = `ACT${suffix}01N`;
     await page.goto("/login");
     await page.getByLabel("Work email").fill(email);
     await page.getByRole("button", { name: "Send magic link" }).click();
 
     await expect(page).toHaveURL(/\/onboarding/, { timeout: 30_000 });
     await page.getByLabel("Company / Exporter name").fill("Tiruppur Knit Exports");
-    await page.getByLabel("IEC Code (optional now)").fill("AAACT5678N");
+    await page.getByLabel("IEC Code (optional now)").fill(iecCode);
     await page.getByTestId("wizard-step1-submit").click();
     await page.getByTestId("wizard-skip-all-btn").click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
@@ -91,7 +93,9 @@ test.describe("Prompt 10: Bulk eBRC Excel validator, plan gate, and DGFT .xlsx e
     // 3. Import IRM workbook and confirm a USD match
     await page.goto("/app/matches");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: /IRM Import & Matching/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /(Bank Payment \(IRM\) Matching|IRM Import & Matching)/i })
+    ).toBeVisible();
     const irmXlsxPath = path.resolve(
       process.cwd(),
       "fixtures",

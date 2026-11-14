@@ -11,6 +11,8 @@ test.describe("Prompt 6: Shipping Bill parser, batch summary & mobile/desktop re
     });
     const page = await context.newPage();
 
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    const iecCode = `ACC${suffix}01E`;
     const email = `sb-review-${Date.now()}@example.invalid`;
     await page.goto("/login");
     await page.getByLabel("Work email").fill(email);
@@ -18,7 +20,7 @@ test.describe("Prompt 6: Shipping Bill parser, batch summary & mobile/desktop re
 
     await expect(page).toHaveURL(/\/onboarding/, { timeout: 30_000 });
     await page.getByLabel("Company / Exporter name").fill("Coimbatore Valves Pvt Ltd");
-    await page.getByLabel("IEC Code (optional now)").fill("AAACC6543E");
+    await page.getByLabel("IEC Code (optional now)").fill(iecCode);
     await page.getByTestId("wizard-step1-submit").click();
     await page.getByTestId("wizard-skip-all-btn").click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ChevronDown, HelpCircle, Shield, Lock, FileCheck2, CreditCard } from "lucide-react";
+import { APP_CONFIG } from "@/config/app";
 
 interface FaqItem {
   question: string;
@@ -12,14 +13,12 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     question: "Do you need my DGFT or ICEGATE password, or my DSC token? Never.",
-    answer:
-      "No. We never ask for, accept, or store your Digital Signature Certificate (DSC) USB tokens, ICEGATE credentials, or DGFT portal passwords. You download your Shipping Bill PDFs and bank IRM spreadsheets directly from official portals yourself and upload them to ExportLeak. Your government access remains 100% in your hands.",
+    answer: `No. We never ask for, accept, or store your Digital Signature Certificate (DSC) USB tokens, ICEGATE credentials, or DGFT portal passwords. You download your Shipping Bill PDFs and bank IRM spreadsheets directly from official portals yourself and upload them to ${APP_CONFIG.name}. Your government access remains 100% in your hands.`,
     icon: Lock,
   },
   {
     question: "How do I know my RoDTEP and Drawback calculations are accurate?",
-    answer:
-      "ExportLeak uses official effective-dated rate schedules published by DGFT (Appendix 4R notifications) and Central Board of Indirect Taxes and Customs (AIR Drawback). Calculations strictly implement both value-based percentages and per-unit caps (e.g. min(rate% × FOB, cap × quantity)) using integer minor unit math. We show you the exact formula and source notification on every single line item.",
+    answer: `${APP_CONFIG.name} uses official effective-dated rate schedules published by DGFT (Appendix 4R notifications) and Central Board of Indirect Taxes and Customs (AIR Drawback). Calculations strictly implement both value-based percentages and per-unit caps (e.g. min(rate% × FOB, cap × quantity)) using integer minor unit math. We show you the exact formula and source notification on every single line item.`,
     icon: FileCheck2,
   },
   {

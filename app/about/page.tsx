@@ -9,8 +9,7 @@ import { APP_CONFIG } from "@/config/app";
 
 export const metadata = {
   title: `About Us & Founder Story | ${APP_CONFIG.name}`,
-  description:
-    "Learn why ExportLeak was built: helping Indian MSME exporters recover unclaimed RoDTEP incentives and automate DGFT eBRCs.",
+  description: `Learn why ${APP_CONFIG.name} was built: helping Indian MSME exporters recover unclaimed RoDTEP incentives and automate DGFT eBRCs.`,
 };
 
 export default function AboutPage() {

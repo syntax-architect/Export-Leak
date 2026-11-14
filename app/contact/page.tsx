@@ -8,8 +8,7 @@ import { APP_CONFIG } from "@/config/app";
 
 export const metadata = {
   title: `Contact & Support | ${APP_CONFIG.name}`,
-  description:
-    "Get support for ExportLeak export incentive tracking, DGFT bulk eBRC, or billing inquiries via email and WhatsApp.",
+  description: `Get support for ${APP_CONFIG.name} export incentive tracking, DGFT bulk eBRC, or billing inquiries via email and WhatsApp.`,
 };
 
 export default function ContactPage() {
@@ -92,7 +91,7 @@ export default function ContactPage() {
                   <div>
                     <h2 className="text-sm font-semibold text-text">Registered Office Address</h2>
                     <p className="text-xs text-text-muted mt-0.5">
-                      ExportLeak Solutions Private Limited (incorporation in progress)
+                      {APP_CONFIG.legalEntityName}
                       <br />
                       Anna Salai, Chennai, Tamil Nadu 600002, India
                     </p>

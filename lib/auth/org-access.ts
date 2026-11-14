@@ -121,7 +121,7 @@ export async function assertOrgMembershipAccess(params: {
  * Throws UnauthorizedError (401) if unauthenticated or ForbiddenError (403) if user
  * is not a member of orgId or lacks minRole.
  */
-export async function requireOrgAccess(
+export const requireOrgAccess = cache(async function requireOrgAccess(
   orgId: string,
   minRole: MembershipRole = "viewer"
 ): Promise<OrgAccessContext> {
@@ -155,4 +155,4 @@ export async function requireOrgAccess(
       return data.role;
     },
   });
-}
+});

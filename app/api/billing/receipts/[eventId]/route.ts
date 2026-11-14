@@ -237,8 +237,8 @@ export async function GET(request: NextRequest, context: { params: Promise<{ eve
     <div class="header">
       <div>
         <h1 class="brand-title">${APP_CONFIG.name}</h1>
-        <div class="brand-sub">Export Incentive &amp; Payment Tracker</div>
-        <div class="brand-sub">ExportLeak Solutions Private Limited (in-formation)</div>
+        <div class="brand-sub">${APP_CONFIG.tagline}</div>
+        <div class="brand-sub">${APP_CONFIG.legalEntityName}</div>
       </div>
       <div>
         <span class="receipt-badge">PAID</span>

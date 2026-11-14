@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PLANS, type PlanKey } from "@/config/plans";
+import { APP_CONFIG } from "@/config/app";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -101,7 +102,7 @@ const COMPARISON_FEATURES: ComparisonFeature[] = [
 const FAQS = [
   {
     q: "Do you need my Digital Signature Certificate (DSC) or portal passwords?",
-    a: "Never. Under our strict Master Security Rules, we never ask for, accept, or store your DSC hardware tokens, ICEGATE passwords, DGFT credentials, or banking passwords. You download your own Shipping Bills and bank IRMs directly from the respective government portals and upload them to ExportLeak.",
+    a: `Never. Under our strict Master Security Rules, we never ask for, accept, or store your DSC hardware tokens, ICEGATE passwords, DGFT credentials, or banking passwords. You download your own Shipping Bills and bank IRMs directly from the respective government portals and upload them to ${APP_CONFIG.name}.`,
   },
   {
     q: "Can I cancel my subscription anytime?",

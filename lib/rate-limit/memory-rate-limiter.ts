@@ -52,10 +52,10 @@ export const RATE_LIMIT_PRESETS: Record<RateLimitPresetKey, RateLimitPreset> = {
     message: "Too many authentication attempts. Please wait 10 minutes before trying again.",
   },
   UPLOADS: {
-    maxRequests: 30,
-    windowSeconds: 60, // 30 uploads per minute
+    maxRequests: 100,
+    windowSeconds: 60, // 100 uploads per minute (supports 50-file batches)
     message:
-      "Upload rate limit reached (30 requests/minute). Please wait a moment before uploading more files.",
+      "Upload rate limit reached (100 requests/minute). Please wait a moment before uploading more files.",
   },
   MUTATIONS: {
     maxRequests: 60,
