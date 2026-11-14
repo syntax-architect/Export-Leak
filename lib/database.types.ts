@@ -741,6 +741,10 @@ export interface Database {
           title: string;
           message: string;
           sent_channels: string[];
+          entity_type: string | null;
+          entity_id: string | null;
+          threshold: number | null;
+          dedup_key: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -756,6 +760,10 @@ export interface Database {
           title?: string;
           message?: string;
           sent_channels?: string[];
+          entity_type?: string | null;
+          entity_id?: string | null;
+          threshold?: number | null;
+          dedup_key?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -771,6 +779,10 @@ export interface Database {
           title?: string;
           message?: string;
           sent_channels?: string[];
+          entity_type?: string | null;
+          entity_id?: string | null;
+          threshold?: number | null;
+          dedup_key?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1533,6 +1545,129 @@ export interface Database {
             columns: ["org_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notification_preferences: {
+        Row: {
+          id: string;
+          org_id: string;
+          user_id: string;
+          iec_id: string | null;
+          alert_types: Json;
+          channels: Json;
+          digest_frequency: "realtime" | "daily" | "weekly" | "none";
+          quiet_hours_enabled: boolean;
+          quiet_hours_start: string;
+          quiet_hours_end: string;
+          unsubscribed_at: string | null;
+          unsubscribe_token: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          user_id: string;
+          iec_id?: string | null;
+          alert_types?: Json;
+          channels?: Json;
+          digest_frequency?: "realtime" | "daily" | "weekly" | "none";
+          quiet_hours_enabled?: boolean;
+          quiet_hours_start?: string;
+          quiet_hours_end?: string;
+          unsubscribed_at?: string | null;
+          unsubscribe_token?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          user_id?: string;
+          iec_id?: string | null;
+          alert_types?: Json;
+          channels?: Json;
+          digest_frequency?: "realtime" | "daily" | "weekly" | "none";
+          quiet_hours_enabled?: boolean;
+          quiet_hours_start?: string;
+          quiet_hours_end?: string;
+          unsubscribed_at?: string | null;
+          unsubscribe_token?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notification_preferences_iec_id_fkey";
+            columns: ["iec_id"];
+            isOneToOne: false;
+            referencedRelation: "iec_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notification_dispatches: {
+        Row: {
+          id: string;
+          org_id: string;
+          alert_id: string | null;
+          channel: "in_app" | "email" | "whatsapp";
+          recipient: string;
+          subject: string | null;
+          body: string | null;
+          status: "queued" | "sent" | "failed" | "skipped" | "unsubscribed";
+          error: string | null;
+          sent_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          alert_id?: string | null;
+          channel: "in_app" | "email" | "whatsapp";
+          recipient: string;
+          subject?: string | null;
+          body?: string | null;
+          status: "queued" | "sent" | "failed" | "skipped" | "unsubscribed";
+          error?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          alert_id?: string | null;
+          channel?: "in_app" | "email" | "whatsapp";
+          recipient?: string;
+          subject?: string | null;
+          body?: string | null;
+          status?: "queued" | "sent" | "failed" | "skipped" | "unsubscribed";
+          error?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_dispatches_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notification_dispatches_alert_id_fkey";
+            columns: ["alert_id"];
+            isOneToOne: false;
+            referencedRelation: "alerts";
             referencedColumns: ["id"];
           },
         ];

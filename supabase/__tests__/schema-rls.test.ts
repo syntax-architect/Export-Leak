@@ -308,6 +308,8 @@ describe("Database schema, seed, and multi-tenant RLS", () => {
       "incentive_rates",
       "irm_import_batches",
       "memberships",
+      "notification_dispatches",
+      "notification_preferences",
       "notification_templates",
       "onboarding_events",
       "onboarding_profiles",

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowLeftRight,
   BadgeIndianRupee,
+  Bell,
   Building2,
   Check,
   ChevronsUpDown,
@@ -21,6 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import { TrialCountdownBanner } from "@/components/billing/trial-countdown-banner";
+import { AlertsDrawer } from "@/components/alerts/alerts-drawer";
 import { AppShell, type AppNavItem, type OrgSwitcherOption } from "@/components/shell/app-shell";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { TrustGuaranteesList } from "@/components/trust/trust-panel";
@@ -60,6 +62,7 @@ export function WorkspaceShell({
   const [iecSearch, setIecSearch] = React.useState("");
   const [iecSheetOpen, setIecSheetOpen] = React.useState(false);
   const [helpSheetOpen, setHelpSheetOpen] = React.useState(false);
+  const [alertsDrawerOpen, setAlertsDrawerOpen] = React.useState(false);
 
   const activeIec = iecs.find((i) => i.id === activeIecId) ?? iecs[0] ?? null;
   const totalOpenAlerts = iecs.reduce((sum, item) => sum + item.openAlertsCount, 0);
@@ -130,6 +133,13 @@ export function WorkspaceShell({
         icon: <CreditCard className="h-5 w-5" />,
       },
       {
+        id: "notifications",
+        label: "Alerts & Settings",
+        href: "/app/notifications",
+        icon: <Bell className="h-5 w-5" />,
+        badgeCount: totalOpenAlerts > 0 ? totalOpenAlerts : undefined,
+      },
+      {
         id: "onboarding",
         label: "Onboarding",
         href: "/onboarding",
@@ -155,7 +165,9 @@ export function WorkspaceShell({
                 ? "team"
                 : pathname.startsWith("/app/billing")
                   ? "billing"
-                  : "overview";
+                  : pathname.startsWith("/app/notifications")
+                    ? "notifications"
+                    : "overview";
 
   const orgOptions: readonly OrgSwitcherOption[] = organizations.map((org) => ({
     id: org.orgId,
@@ -325,29 +337,39 @@ export function WorkspaceShell({
     ) : null;
 
   return (
-    <AppShell
-      navItems={navItems}
-      activeNavId={activeNavId}
-      orgs={orgOptions}
-      selectedOrgId={activeOrg.orgId}
-      onSelectOrg={switchOrg}
-      unreadNotifications={totalOpenAlerts}
-      user={{
-        name: userEmail ?? "Member",
-        email: userEmail ?? undefined,
-        roleLabel: `Role: ${activeOrg.role}`,
-      }}
-      onSignOut={handleSignOut}
-      headerExtra={
-        <>
-          {iecSwitcherControl}
-          {helpMenuControl}
-          <ThemeToggle />
-        </>
-      }
-    >
-      <TrialCountdownBanner planKey={activeOrg.planKey} trialEndsAt={activeOrg.trialEndsAt} />
-      {children}
-    </AppShell>
+    <>
+      <AppShell
+        navItems={navItems}
+        activeNavId={activeNavId}
+        orgs={orgOptions}
+        selectedOrgId={activeOrg.orgId}
+        onSelectOrg={switchOrg}
+        unreadNotifications={totalOpenAlerts}
+        onNotificationClick={() => setAlertsDrawerOpen(true)}
+        user={{
+          name: userEmail ?? "Member",
+          email: userEmail ?? undefined,
+          roleLabel: `Role: ${activeOrg.role}`,
+        }}
+        onSignOut={handleSignOut}
+        headerExtra={
+          <>
+            {iecSwitcherControl}
+            {helpMenuControl}
+            <ThemeToggle />
+          </>
+        }
+      >
+        <TrialCountdownBanner planKey={activeOrg.planKey} trialEndsAt={activeOrg.trialEndsAt} />
+        {children}
+      </AppShell>
+      <AlertsDrawer
+        open={alertsDrawerOpen}
+        onOpenChange={setAlertsDrawerOpen}
+        orgId={activeOrg.orgId}
+        activeIecId={activeIecId}
+        onAlertUpdated={() => router.refresh()}
+      />
+    </>
   );
 }
