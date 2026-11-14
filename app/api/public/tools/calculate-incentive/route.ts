@@ -1,5 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit/memory-rate-limiter";
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp,
+  getRateLimitHeaders,
+} from "@/lib/rate-limit/memory-rate-limiter";
 import { calculatePublicIncentive } from "@/lib/incentives/public-lookup";
 
 export const dynamic = "force-dynamic";
@@ -9,13 +14,7 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request.headers);
     const rateCheck = checkRateLimit(ip, "calculate_incentive", 100, 3600);
     if (!rateCheck.allowed) {
-      return NextResponse.json(
-        { error: rateCheck.friendlyMessage },
-        {
-          status: 429,
-          headers: { "Retry-After": String(rateCheck.resetSeconds) },
-        }
-      );
+      return createRateLimitResponse(rateCheck);
     }
 
     const body = await request.json().catch(() => ({}));
@@ -53,7 +52,7 @@ export async function POST(request: NextRequest) {
       shippingDate,
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, { headers: getRateLimitHeaders(rateCheck) });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Calculation failed.";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -107,7 +106,7 @@ export async function GET(request: NextRequest) {
       shippingDate,
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, { headers: getRateLimitHeaders(rateCheck) });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Calculation failed.";
     return NextResponse.json({ error: message }, { status: 500 });

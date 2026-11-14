@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/database.types";
 import { isPgliteTestAdapterEnabled, isSupabaseConfigured } from "@/lib/supabase/config";
+import { enforceRateLimit } from "@/lib/rate-limit/memory-rate-limiter";
 
 function isProtectedAppRoute(pathname: string): boolean {
   return pathname === "/app" || pathname.startsWith("/app/");
@@ -11,6 +12,19 @@ function isOnboardingRoute(pathname: string): boolean {
   return pathname === "/onboarding" || pathname.startsWith("/onboarding/");
 }
 
+function applySecurityAndCacheHeaders(response: NextResponse, pathname: string): NextResponse {
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  if (pathname.startsWith("/app") || pathname.startsWith("/onboarding") || pathname.startsWith("/api/")) {
+    response.headers.set("Cache-Control", "private, no-cache, no-store, max-age=0, must-revalidate");
+    response.headers.set("Pragma", "no-cache");
+  }
+
+  return response;
+}
+
 function redirectToLogin(request: NextRequest, errorCode?: string): NextResponse {
   const loginUrl = new URL("/login", request.url);
   const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
@@ -18,11 +32,24 @@ function redirectToLogin(request: NextRequest, errorCode?: string): NextResponse
   if (errorCode) {
     loginUrl.searchParams.set("error", errorCode);
   }
-  return NextResponse.redirect(loginUrl);
+  return applySecurityAndCacheHeaders(NextResponse.redirect(loginUrl), request.nextUrl.pathname);
 }
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Global rate limit check for protected and auth entry routes to prevent scraper flooding
+  if (!process.env.VITEST && (pathname === "/login" || pathname.startsWith("/app"))) {
+    const rateCheck = enforceRateLimit(request, "proxy_gateway", {
+      maxRequests: 300,
+      windowSeconds: 60,
+      message: "Gateway traffic limit exceeded. Please wait 1 minute before refreshing.",
+    });
+    if (!rateCheck.allowed) {
+      return rateCheck.response;
+    }
+  }
+
   const needsAuth = isProtectedAppRoute(pathname) || isOnboardingRoute(pathname);
 
   const testSessionCookie = request.cookies.get("exportleak_test_session")?.value;
@@ -48,18 +75,21 @@ export async function proxy(request: NextRequest) {
       });
 
       if (orgCount === 0) {
-        return NextResponse.redirect(new URL("/onboarding", request.url));
+        return applySecurityAndCacheHeaders(
+          NextResponse.redirect(new URL("/onboarding", request.url)),
+          pathname
+        );
       }
     }
 
-    return NextResponse.next();
+    return applySecurityAndCacheHeaders(NextResponse.next(), pathname);
   }
 
   if (!isSupabaseConfigured()) {
     if (needsAuth) {
       return redirectToLogin(request, "auth_unconfigured");
     }
-    return NextResponse.next();
+    return applySecurityAndCacheHeaders(NextResponse.next(), pathname);
   }
 
   let response = NextResponse.next({ request });
@@ -102,11 +132,14 @@ export async function proxy(request: NextRequest) {
       .maybeSingle();
 
     if (!membership) {
-      return NextResponse.redirect(new URL("/onboarding", request.url));
+      return applySecurityAndCacheHeaders(
+        NextResponse.redirect(new URL("/onboarding", request.url)),
+        pathname
+      );
     }
   }
 
-  return response;
+  return applySecurityAndCacheHeaders(response, pathname);
 }
 
 export const config = {

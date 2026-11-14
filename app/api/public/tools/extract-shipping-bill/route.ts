@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import ExcelJS from "exceljs";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit/memory-rate-limiter";
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp,
+} from "@/lib/rate-limit/memory-rate-limiter";
 import { validateMagicBytes } from "@/lib/documents/file-security";
 import { extractPdfPagesText } from "@/lib/documents/parsing/pdf-extract";
 import { runDeterministicShippingBillParser } from "@/lib/documents/parsing/deterministic-parser";
@@ -12,19 +16,17 @@ export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request.headers);
     // 5 free PDF extractions per 24 hours (86,400 seconds)
-    const rateCheck = checkRateLimit(ip, "pdf_extract", 5, 86400);
+    const rateCheck = checkRateLimit(
+      ip,
+      "pdf_extract",
+      5,
+      86400,
+      "You have reached the free limit of 5 Shipping Bill PDF extractions for today. Create a free ExportLeak account for unlimited uploads, automated bank IRM matching, and bulk DGFT eBRC generation."
+    );
     if (!rateCheck.allowed) {
-      return NextResponse.json(
-        {
-          error:
-            "You have reached the free limit of 5 Shipping Bill PDF extractions for today. Create a free ExportLeak account for unlimited uploads, automated bank IRM matching, and bulk DGFT eBRC generation.",
-          limitReached: true,
-        },
-        {
-          status: 429,
-          headers: { "Retry-After": String(rateCheck.resetSeconds) },
-        }
-      );
+      return createRateLimitResponse(rateCheck, {
+        limitReached: true,
+      });
     }
 
     const { searchParams } = new URL(request.url);

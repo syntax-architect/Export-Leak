@@ -35,8 +35,8 @@ export function StickyMobileCta() {
         <div className="flex flex-col">
           <span className="text-xs font-bold text-text">Try ExportLeak Free</span>
           <span className="text-[11px] text-text-muted flex items-center gap-1">
-            <ShieldCheck className="h-3 w-3 text-success" />
-            <span>7-day Pro trial · No card</span>
+            <ShieldCheck className="h-3 w-3 text-success shrink-0" />
+            <span>7-day Pro trial · Zero DSC / Card</span>
           </span>
         </div>
         <Button asChild variant="primary" size="sm" className="min-h-11 px-4 text-xs font-semibold">

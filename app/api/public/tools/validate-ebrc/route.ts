@@ -1,5 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit/memory-rate-limiter";
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp,
+} from "@/lib/rate-limit/memory-rate-limiter";
 import { validateMagicBytes } from "@/lib/documents/file-security";
 import {
   autoFixBulkEbrcRows,
@@ -16,13 +20,7 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request.headers);
     const rateCheck = checkRateLimit(ip, "ebrc_validate", 30, 3600);
     if (!rateCheck.allowed) {
-      return NextResponse.json(
-        { error: rateCheck.friendlyMessage },
-        {
-          status: 429,
-          headers: { "Retry-After": String(rateCheck.resetSeconds) },
-        }
-      );
+      return createRateLimitResponse(rateCheck);
     }
 
     const { searchParams } = new URL(request.url);

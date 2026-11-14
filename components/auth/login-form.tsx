@@ -219,11 +219,20 @@ export function LoginForm({
         </div>
         <CardTitle className="text-xl font-bold">Sign in to {APP_CONFIG.name}</CardTitle>
         <CardDescription>
-          Quick sign-in with Google or an email magic link / one-time code.
+          Sign in safely with Google or a 1-click email link. No passwords to remember.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
+        <div className="flex items-start gap-2.5 rounded-[var(--radius-sm)] border border-success/30 bg-success-soft p-3 text-xs text-success-soft-fg">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
+          <div className="flex flex-col gap-0.5">
+            <span className="font-semibold text-text">100% Exporter Safe &amp; Private</span>
+            <span>
+              We never ask for your DSC USB token, ICEGATE password, or DGFT portal credentials.
+            </span>
+          </div>
+        </div>
         {devMode && (
           <div className="flex flex-col gap-2.5 rounded-[var(--radius-sm)] border-2 border-dashed border-amber-500/50 bg-amber-500/10 p-4">
             <div className="flex items-center justify-between gap-2">

@@ -24,6 +24,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { PageTransition } from "@/components/shell/page-transition";
+import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { cn } from "@/lib/utils";
 
 export interface AppNavItem {
@@ -138,6 +139,7 @@ export function AppShell({
 
       {/* Main Column */}
       <div className="flex min-w-0 flex-1 flex-col">
+        <OfflineBanner />
         {/* Top Bar */}
         <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-surface/95 px-3 backdrop-blur-sm pt-safe sm:px-6">
           <div className="flex min-w-0 items-center gap-2">

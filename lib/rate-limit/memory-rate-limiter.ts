@@ -43,7 +43,14 @@ export interface RateLimitPreset {
   message?: string;
 }
 
-export const RATE_LIMIT_PRESETS: Record<string, RateLimitPreset> = {
+export type RateLimitPresetKey =
+  | "AUTH"
+  | "UPLOADS"
+  | "MUTATIONS"
+  | "PUBLIC_TOOLS"
+  | "GENERAL_API";
+
+export const RATE_LIMIT_PRESETS: Record<RateLimitPresetKey, RateLimitPreset> = {
   AUTH: {
     maxRequests: 10,
     windowSeconds: 600, // 10 requests per 10 minutes
@@ -86,6 +93,9 @@ export function checkRateLimit(
   windowSeconds = 3600,
   customMessage?: string
 ): RateLimitResult {
+  if (!customMessage && action.startsWith("tool:")) {
+    customMessage = RATE_LIMIT_PRESETS.PUBLIC_TOOLS.message;
+  }
   const key = `${action}:${ip || "unknown_ip"}`;
   const now = Date.now();
   const windowMs = windowSeconds * 1000;
@@ -105,9 +115,9 @@ export function checkRateLimit(
     const resetSeconds = Math.max(1, Math.ceil(resetMs / 1000));
     const resetMinutes = Math.ceil(resetSeconds / 60);
 
-    const defaultMsg = `You have reached the limit (${maxRequests} requests per ${
+    const defaultMsg = `You have reached the free usage limit (${maxRequests} requests per ${
       windowSeconds >= 3600 ? `${Math.round(windowSeconds / 3600)} hour` : `${windowSeconds}s`
-    }). Please wait ${resetMinutes} minute${resetMinutes === 1 ? "" : "s"} or continue later.`;
+    }). Please wait ${resetMinutes} minute${resetMinutes === 1 ? "" : "s"} or create a free account to continue without interruption.`;
 
     return {
       allowed: false,
@@ -191,11 +201,11 @@ export function getClientIp(headers: Headers): string {
 export function enforceRateLimit(
   request: Request,
   action: string,
-  presetKeyOrConfig: keyof typeof RATE_LIMIT_PRESETS | RateLimitPreset = "GENERAL_API"
+  presetKeyOrConfig: RateLimitPresetKey | RateLimitPreset = "GENERAL_API"
 ): { allowed: true; headers: Record<string, string> } | { allowed: false; response: NextResponse } {
   const config =
     typeof presetKeyOrConfig === "string"
-      ? (RATE_LIMIT_PRESETS[presetKeyOrConfig] ?? RATE_LIMIT_PRESETS.GENERAL_API!)
+      ? RATE_LIMIT_PRESETS[presetKeyOrConfig]
       : presetKeyOrConfig;
 
   const ip = getClientIp(request.headers);

@@ -280,6 +280,40 @@ export function EbrcWorkspace({ orgId, userRole, initialData }: EbrcWorkspacePro
         </div>
       </div>
 
+      {/* Exporter DGFT Guidance & DSC Safety Guarantee */}
+      <div className="rounded-[var(--radius-card)] border border-border-subtle bg-surface p-4 text-xs space-y-2">
+        <div className="flex items-center gap-2 font-semibold text-text">
+          <ShieldCheck className="h-4 w-4 text-success" />
+          <span>How to submit this file to DGFT (3 Simple Steps)</span>
+        </div>
+        <ol className="list-decimal list-inside space-y-1 text-text-muted leading-relaxed">
+          <li>
+            Click <strong className="text-text">Download DGFT Excel (.xlsx)</strong> below.
+          </li>
+          <li>
+            Log into{" "}
+            <a
+              href="https://www.dgft.gov.in"
+              target="_blank"
+              rel="noreferrer"
+              className="text-accent underline"
+            >
+              dgft.gov.in
+            </a>{" "}
+            yourself using your own company DSC token.
+          </li>
+          <li>
+            Navigate to{" "}
+            <strong className="text-text">Services &rarr; eBRC &rarr; Bulk Generate eBRC</strong>{" "}
+            and attach this file.
+          </li>
+        </ol>
+        <p className="text-[11px] font-medium text-text-muted pt-1 border-t border-border-subtle">
+          ExportLeak never asks for or stores your DSC token. You retain 100% control of your
+          government submissions.
+        </p>
+      </div>
+
       {/* Admin quarterly verification banner */}
       {isOrgAdmin ? (
         <div

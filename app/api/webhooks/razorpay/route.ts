@@ -30,7 +30,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    // For database or server errors, return 500 so Razorpay retries the webhook
-    return NextResponse.json({ error: errorMsg }, { status: 500 });
+    // For database or server errors, log error and return 500 so Razorpay retries
+    console.error("Razorpay webhook processing error:", error);
+    const safeMsg =
+      process.env.NODE_ENV === "production" ? "Webhook processing failed" : errorMsg;
+    return NextResponse.json({ error: safeMsg }, { status: 500 });
   }
 }

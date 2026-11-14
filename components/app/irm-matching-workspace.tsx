@@ -457,11 +457,12 @@ export function IrmMatchingWorkspace({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-text">
-            IRM Import &amp; Matching
+            Bank Payment (IRM) Matching
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Import bank or DGFT EDPMS remittance sheets, verify column mappings, and reconcile
-            Shipping Bills with explainable same-currency matching.
+            Import foreign bank payment receipts (Inward Remittance Messages / IRMs), match them to
+            Shipping Bills, and automatically account for foreign bank wire charges. No bank
+            passwords or OTPs required.
           </p>
         </div>
         {canWrite ? (

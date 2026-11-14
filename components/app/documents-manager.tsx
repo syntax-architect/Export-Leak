@@ -849,12 +849,9 @@ export function DocumentsManager({
                 <Upload className="h-5 w-5" aria-hidden="true" />
               </div>
               <div className="max-w-md space-y-1">
-                <p className="text-sm font-semibold text-text">
-                  Drag and drop PDFs, Excel sheets, or CSVs here
-                </p>
+                <p className="text-sm font-semibold text-text">Tap to select or drop files here</p>
                 <p className="text-xs text-text-muted">
-                  Up to 50 files per batch • PDF, XLSX, XLS, CSV • Max 10 MB per file • Magic-byte
-                  checked before upload
+                  ICEGATE Shipping Bill PDFs or Bank IRM Excel/CSV sheets • Max 10 MB per file
                 </p>
               </div>
 
@@ -889,9 +886,9 @@ export function DocumentsManager({
               </Button>
 
               <p className="flex items-center gap-1.5 text-xs text-text-muted">
-                <ShieldCheck className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+                <ShieldCheck className="h-3.5 w-3.5 text-success" aria-hidden="true" />
                 <span>
-                  Private to your organization. Never executed or opened in a server browser.
+                  100% Private &amp; Encrypted. We never connect to ICEGATE or request DSC tokens.
                 </span>
               </p>
             </div>
